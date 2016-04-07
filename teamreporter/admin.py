@@ -4,16 +4,20 @@ from .models import Group, Question, Survey, Answer
 
 
 class GroupAdmin(admin.ModelAdmin):
-    raw_id_fields = ('admin', )
+    raw_id_fields = ('admin',)
+
 
 class QuestionAdmin(admin.ModelAdmin):
     pass
 
+
 class SurveyAdmin(admin.ModelAdmin):
-    pass
+    prepopulated_fields = {'slug': ('group', 'user', 'date')}
+
 
 class AnswerAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Question, QuestionAdmin)
