@@ -5,7 +5,14 @@
     <div class="modal-body">
         <div class="form-group" ng-repeat="field in fields">
             <label for = "{{field.name}}">{{field.name}}</label>
-                <input id="{{field.name}}" class="form-control" type="{{field.type}}" ng-model="field.value"/>
+            <div ng-switch="field.type">
+                <div ng-switch-when="multiselect">
+                    <multiselect data-multiple="true" options="c.name for c in field.options" data-compare-by="id" ng-model="field.value"></multiselect>
+                </div>
+                <div ng-switch-default>
+                    <input id="{{field.name}}" class="form-control" type="{{field.type}}" ng-model="field.value"/>
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal-footer">

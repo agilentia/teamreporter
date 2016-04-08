@@ -130,11 +130,11 @@ ALLOWED_HOSTS = ['*']
 STATIC_URL = '/static/'
 
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED', False)
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_ROOT, 'static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # Simplified static file serving.
