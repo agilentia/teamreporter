@@ -16,8 +16,8 @@ $ source ~/.virtualenvs/sher/bin/activate
 $ pip install -r requirements.txt
 $ bower install (depends on your system, but this requires node.js and npm)
 $ python manage.py migrate
-$ python manage.py runserver
-$ Go to http://localhost:8000
+$ heroku local web
+$ Go to http://localhost:5000
 ```
 
 ### TODO
