@@ -5,13 +5,6 @@ from django.db.models import signals
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import json
 
-def validate_roles(role_string):
-    roles = json.loads(role_string)
-    print("COUNT", Role.objects.filter(id__in=roles).count())
-    if Role.objects.filter(id__in=roles).count() != len(roles):
-        raise ValidationError("Not all role IDs were found")
-
-
 def add_default_report(sender, instance, **kwargs):
     Report.objects.get_or_create(team=instance)  # this inefficiency can be removed later if there are multiple reports
 
@@ -34,12 +27,6 @@ class Membership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(auto_now=True)
     roles = models.ManyToManyField(Role)
-
-    def set_roles(self, roles):
-        self.roles = json.dumps(roles)
-
-    def get_roles(self):
-        return json.loads(self.roles)
 
 class Report(models.Model):
     team = models.ForeignKey(Team)
