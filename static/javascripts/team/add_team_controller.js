@@ -8,10 +8,9 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 	      controller: "addModalController",
 	      //size: size,
 	      resolve: {
+	      	title: function(){return "Add Team"},
 	        fields: function () {
-	          return [{name: "Email", value: "", type: "email", var_name: "email"}, 
-						{name: "First Name", value: "", type: "text", var_name: "first_name"}, 
-						{name: "Last Name", value: "", type: "text", var_name: "last_name"}];
+	          return [{name: "Name", value: "", type: "text", var_name: "name"}];
 	        }
 	      }
 	    });

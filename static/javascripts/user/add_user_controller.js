@@ -8,6 +8,7 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 	      controller: "addModalController",
 	      //size: size,
 	      resolve: {
+	      	title: function(){return "Add User"},
 	        fields: function () {
 	          return [{name: "Email", value: "", type: "email", var_name: "email"}, 
 						{name: "First Name", value: "", type: "text", var_name: "first_name"}, 

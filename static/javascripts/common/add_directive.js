@@ -5,7 +5,8 @@ app.directive('addDirective', function() {
 		controller : "@",
 		name: "controllerName",
 		scope: {
-			addType: "@"
+			addType: "@",
+			addTitle: "@"
 		}
 	}
 });

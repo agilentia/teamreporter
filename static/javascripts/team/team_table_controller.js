@@ -4,7 +4,6 @@ app.controller('teamTableController', ["$scope", "teamService", function($scope,
 	$scope.add_user = function(){
 		
 	}
-	console.log("calling")
 	teamService.get().then(function(resp){
 		if("error" in resp) {
 			return
