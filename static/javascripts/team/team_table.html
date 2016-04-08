@@ -4,6 +4,7 @@
 		<th>Name</th>
 		<th>View Users</th>
 		<th>View Team Questions</th>
+		<th>Role</th>
 		<th>Delete</th>
 		</thead>
 		<tbody>
@@ -11,6 +12,7 @@
 			<td>{{team.name}}</td>
 			<td><a ui-sref="user({team_id: team.id})">View</a> </td>
 			<td><a ui-sref="question({team_id: team.id})">View</a> </td>
+			<td>ROLE HERE (admin or minion)</td>
 			<td><button class = "btn btn-sm btn-danger">Delete</button></td>
 		</tr>
 		</tbody>

@@ -16,7 +16,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 class SurveyAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('group', 'user', 'date')}
+    prepopulated_fields = {'slug': ('report', 'user', 'date')}
 
 
 class AnswerAdmin(admin.ModelAdmin):

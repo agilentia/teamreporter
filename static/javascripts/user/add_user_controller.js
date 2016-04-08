@@ -12,11 +12,13 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 	        fields: function () {
 	          return [{name: "Email", value: "", type: "email", var_name: "email"}, 
 						{name: "First Name", value: "", type: "text", var_name: "first_name"}, 
-						{name: "Last Name", value: "", type: "text", var_name: "last_name"}];
+						{name: "Last Name", value: "", type: "text", var_name: "last_name"},
+						{name: "Roles", value: [], type: "multiselect", var_name: "roles", options: [{id: 1, name: "Stakeholder"}, {id: 2, name: "Team Member"}]}];
 	        }
 	      }
 	    });
 		modalInstance.result.then(function (user_info) {
+			console.log(user_info);
 		    userService.save($stateParams.team_id, user_info).then(function(resp){
 		      	if ("error" in resp) {
 		      		alert("error while saving")
