@@ -1,0 +1,23 @@
+{% load compress %}
+{% load staticfiles %}
+
+{% compress js %}
+
+<script type="text/javascript" src="{% static 'bower_components/angular/angular.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-smart-table/dist/smart-table.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/angular-ui-router/release/angular-ui-router.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'javascripts/app.module.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/app.routes.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/user/user_table_directive.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/user/user_table_controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/user/add_user_directive.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/user/add_user_controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/user/user_service.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'javascripts/team/team_table_directive.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/team/team_table_controller.js' %}"></script>
+<script type="text/javascript" src="{% static 'javascripts/team/team_service.js' %}"></script>
+
+{% endcompress %}

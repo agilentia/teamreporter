@@ -1,0 +1,15 @@
+<div id="myModalContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Enter User Information</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" ng-repeat="field in fields">
+            <label for = "{{field.name}}">{{field.name}}</label>
+                <input id="{{field.name}}" class="form-control" type="{{field.type}}" ng-model="field.value"/>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

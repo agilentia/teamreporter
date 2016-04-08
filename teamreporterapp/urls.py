@@ -13,9 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
+from teamreporter.views import IndexView, UserView, TeamView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^accounts/', include('registration.backends.hmac.urls')),
+    url(r'^team/$', TeamView.as_view(), name = "team_view"),
+    url(r'^team/(?P<team_id>\d+)/users/$', UserView.as_view(), name = "user_view"),
+    url('^.*$', IndexView.as_view(), name='index'),
 ]

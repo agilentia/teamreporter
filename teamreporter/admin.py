@@ -1,7 +1,9 @@
 from django.contrib import admin
 
-from .models import Group, Question, Survey, Answer
+from .models import Team as Group, Question, Survey, Answer
 
+class SurveyInline(admin.StackedInline):
+    model           = Survey
 
 class GroupAdmin(admin.ModelAdmin):
     raw_id_fields = ('admin', )

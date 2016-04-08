@@ -1,0 +1,18 @@
+<div>
+	<table st-table="teams" class="table table-striped">
+		<thead>
+		<th>Name</th>
+		<th>View Users</th>
+		<th>View Team Questions</th>
+		<th>Delete</th>
+		</thead>
+		<tbody>
+		<tr ng-repeat="team in teams">
+			<td>{{team.name}}</td>
+			<td><a ui-sref="user({team_id: team.id})">View</a> </td>
+			<td><a ui-sref="/team/{{team.id}}/questions/">View</a> </td>
+			<td><button class = "btn btn-sm btn-danger">Delete</button></td>
+		</tr>
+		</tbody>
+	</table>
+</div>
