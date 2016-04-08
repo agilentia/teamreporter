@@ -1,5 +1,5 @@
 var app = angular.module("teamreporterapp")
-app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "userService", function($scope, $stateParams, $uibModal, userService) {
+app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "teamService", function($scope, $stateParams, $uibModal, teamService) {
 	var self = this;
 	$scope.showAddModal = function(){
 	  var modalInstance = $uibModal.open({
@@ -16,7 +16,7 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 	      }
 	    });
 		modalInstance.result.then(function (user_info) {
-		    userService.save($stateParams.team_id, user_info).then(function(resp){
+		    teamService.save(user_info).then(function(resp){
 		      	if ("error" in resp) {
 		      		alert("error while saving")
 		      		return
