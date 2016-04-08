@@ -6,7 +6,7 @@ app.config(function($stateProvider, $urlRouterProvider) {
 	$stateProvider
 	.state("user", {
 		url: "/team/:team_id/users",
-		templateUrl: "/static/javascripts/user/team_detail_view.html"
+		templateUrl: "/static/javascripts/user/user_list_view.html"
 	})
 	.state("team", {
 		url: "/team/",
