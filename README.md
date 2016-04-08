@@ -14,8 +14,9 @@ $ cd teamreporter
 $ virtualenv ~/.virtualenvs/sher #uses python3.4
 $ source ~/.virtualenvs/sher/bin/activate
 $ pip install -r requirements.txt
-$ bower install (depends on your system, but this requires node.js and npm)
+$ bower install #(depends on your system, but this requires node.js and npm)
 $ python manage.py migrate
+$ python manage.py loaddata teamreporter/fixtures/roles.json #seeds roles
 $ heroku local web
 $ Go to http://localhost:5000
 ```
