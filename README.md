@@ -29,4 +29,4 @@ $ Go to http://localhost:8000
 * Start adding comments
 
 ### Improvements
-* Some angular code can be refactored into common packages.  Adding items, for example could be refactored into a common package
+* Some angular code can be refactored into common packages.  In progress
