@@ -87,15 +87,19 @@ class UserView(View):
 
 		return JsonResponse({"user": model_to_dict(user)}) 
 
+	def delete(self, request, *args, **kwargs):
+		pass
+
 @method_decorator(login_required, name='dispatch')
 class ReportView(View):
 	def get(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
 		self.check_scope(request, team)
+		report = team.report_set.first()
+		questions = report.questions.all()
 
-		report_info = json.loads(request.body.decode("utf-8") )
-
+		return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
 
 	def post(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
@@ -119,3 +123,9 @@ class ReportView(View):
 		question.save()
 
 		return JsonResponse({"question": question})
+
+
+@method_decorator(login_required, name='dispatch')
+class SurveyView(View):
+	def get(self, request, *args, **kwargs):
+		pass
