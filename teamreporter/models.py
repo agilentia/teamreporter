@@ -5,7 +5,9 @@ from django.db.models import signals
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 import json
 
-def validate_roles(roles):
+def validate_roles(role_string):
+    roles = json.loads(role_string)
+    print("COUNT", Role.objects.filter(id__in=roles).count())
     if Role.objects.filter(id__in=roles).count() != len(roles):
         raise ValidationError("Not all role IDs were found")
 

@@ -80,7 +80,7 @@ class UserView(View):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
         cleaned_user_info = clean(user_info, ["first_name", "last_name", "email",])
-        roles = user_info["roles"]
+        roles = [role["id"] for role in user_info["roles"]]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
         except ObjectDoesNotExist:
@@ -91,6 +91,8 @@ class UserView(View):
 
         membership = Membership(team = team, user = user)
         membership.set_roles(roles)
+        membership.full_clean()
+        membership.save()
 
         return JsonResponse({"user": model_to_dict(user)})
 

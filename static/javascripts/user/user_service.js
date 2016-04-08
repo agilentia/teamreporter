@@ -27,7 +27,6 @@ app.factory("userService", ["$http", "$rootScope", function($http, $rootScope){
 				}
 			}).then(function(resp) {
 				var user_obj = {user: resp.data.user};
-				console.log(user_obj)
 				$rootScope.$broadcast('user_added', user_obj)
 				return user_obj
 

@@ -17,7 +17,6 @@ app.controller('userTableController', ["$scope", "$rootScope", "$stateParams", "
     });
 
     $rootScope.$on("user_added", function (event, args) {
-        console.log(args);
         $scope.users.push(args.user);
     });
 

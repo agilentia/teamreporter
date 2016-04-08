@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Team as Group, Question, Survey, Answer
+from .models import Team as Group, Question, Survey, Answer, Membership
 
 
 class SurveyInline(admin.StackedInline):
@@ -14,6 +14,8 @@ class GroupAdmin(admin.ModelAdmin):
 class QuestionAdmin(admin.ModelAdmin):
     pass
 
+class MembershipAdmin(admin.ModelAdmin):
+    pass
 
 class SurveyAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('report', 'user', 'date')}
@@ -24,6 +26,7 @@ class AnswerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Survey, SurveyAdmin)
+admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Answer, AnswerAdmin)
