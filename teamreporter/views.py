@@ -50,6 +50,7 @@ class TeamView(View):
 	def delete(self, request, *args, **kwargs):
 		pass
 
+@method_decorator(login_required, name='dispatch')
 class UserView(View):
 	def get(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
@@ -57,7 +58,6 @@ class UserView(View):
 		if not team:
 			return JsonResponse({"error": "Team not found in DB!"})
 
-		print("TEAM", Team)
 		users = team.users.all()
 
 		return JsonResponse({"users": [model_to_dict(user) for user in users]})
@@ -65,11 +65,13 @@ class UserView(View):
 	def post(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
+		if team.admin.email != request.user.email:
+			return JsonResponse({"error": "User not authorized"}, status = 401)
 
 		user_info = json.loads(request.body.decode("utf-8") )
 		if not validate_presence(user_info, ["email"]):
 			return JsonResponse({"error": "Invalid User JSON data"}, status = 400)
-			
+
 		cleaned_user_info = clean(user_info, ["first_name", "last_name", "email"])
 		try:
 			user = User.objects.get(email = cleaned_user_info["email"])
@@ -83,9 +85,12 @@ class UserView(View):
 
 		return JsonResponse({"user": model_to_dict(user)}) 
 
+@method_decorator(login_required, name='dispatch')
 class ReportView(View):
 	def get(self, request, *args, **kwargs):
-		pass
+		team_id = int(self.kwargs["team_id"])
+		if team.admin.email != request.user.email:
+			return JsonResponse({"error": "User not authorized"}, status = 401)
 
 	def post(self, request, *args, **kwargs):
 		pass

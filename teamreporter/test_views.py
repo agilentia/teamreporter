@@ -52,4 +52,4 @@ class TestUserAPI(TestCase):
 		self.client.login(username = "tonyl7126@gmail.com", password= "test_password")
 
 	def test_get_team_users(self):
-		response = self.client.get(reverse("user_view"), kwargs = {"team_id": 4})
+		response = self.client.get(reverse("user_view", kwargs = {"team_id": 4}))
