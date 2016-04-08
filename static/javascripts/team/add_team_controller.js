@@ -20,6 +20,8 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 		      		alert("error while saving")
 		      		return
 		      	}
+
+		      	
 	      	});
 	    }, function () {
 	      //$log.info('Modal dismissed at: ' + new Date());

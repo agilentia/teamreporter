@@ -54,3 +54,7 @@ class TestUserAPI(TestCase):
 
     def test_get_team_users(self):
         response = self.client.get(reverse("user_view", kwargs={"team_id": 4}))
+
+class TestRolesAPI(TestCase):
+    def setUp(self):
+        pass

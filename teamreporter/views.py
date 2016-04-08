@@ -3,7 +3,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from .models import Team, User, Question
+from .models import Team, User, Question, Role, Membership
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -76,19 +76,21 @@ class UserView(View):
         self.check_scope(request, team)
 
         user_info = json.loads(request.body.decode("utf-8"))
-        if not validate_presence(user_info, ["email"]):
+        if not validate_presence(user_info, ["email", "roles"]):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
-        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email"])
+        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email",])
+        roles = user_info["roles"]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
         except ObjectDoesNotExist:
             user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
 
-        if user.email in [u.email for u in team.users.all()]:
+        if team.users.filter(email = user.email).count(): #check if user in list already
             return JsonResponse({"error": "User already on team"}, status=400)
 
-        team.users.add(user)
+        membership = Membership(team = team, user = user)
+        membership.set_roles(roles)
 
         return JsonResponse({"user": model_to_dict(user)})
 
@@ -139,4 +141,4 @@ class SurveyView(View):
 @method_decorator(login_required, name='dispatch')
 class RoleView(View):
     def get(self, request, *args, **kwargs):
-        return JsonResponse({"roles": [model_to_dict(r) for r in Role.objects.all()]})
+        return JsonResponse({"roles": [model_to_dict(r, fields=["id", "name"]) for r in Role.objects.all()]})

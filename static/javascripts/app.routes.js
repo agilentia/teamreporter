@@ -6,7 +6,12 @@ app.config(function($stateProvider, $urlRouterProvider) {
 	$stateProvider
 	.state("user", {
 		url: "/team/:team_id/users",
-		templateUrl: "/static/javascripts/user/user_list_view.html"
+		templateUrl: "/static/javascripts/user/user_list_view.html",
+		resolve:{
+			"RoleServiceData": function(roleService) {
+				return roleService.promise;
+			}
+		}
 	})
 	.state("team", {
 		url: "/team/",

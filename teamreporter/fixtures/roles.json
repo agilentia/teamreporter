@@ -1,0 +1,16 @@
+[
+{
+  "model": "teamreporter.role",
+  "pk": 1,
+  "fields": {
+    "name": "stakeholder"
+  }
+},
+{
+  "model": "teamreporter.role",
+  "pk": 2,
+  "fields": {
+    "name": "contributer"
+  }
+}
+]

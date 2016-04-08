@@ -1,5 +1,5 @@
 var app = angular.module("teamreporterapp")
-app.factory("teamService", ["$http", function($http){
+app.factory("teamService", ["$http", "$rootScope", function($http, $rootScope){
 
 	var service = {
 		get: function(team) {
@@ -16,8 +16,20 @@ app.factory("teamService", ["$http", function($http){
 			});
 		},
 
-		save: function(team_name) {
-
+		save: function(team_info) {
+			return $http({
+				method: 'POST',
+				url: "/team/",
+				data: {name: team_info.name},
+				headers: {
+    				'Content-Type': 'application/json'
+				}
+			}).then(function(resp) {
+				$rootScope.$broadcast('team_added', resp.data.team)
+				return {team: resp.data.team}
+			}, function(error){
+				return {error: error}
+			});
 		},
 
 		delete: function(team_id) {

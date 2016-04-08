@@ -1,6 +1,7 @@
 var app = angular.module("teamreporterapp")
-app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "userService", function($scope, $stateParams, $uibModal, userService) {
+app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "userService", "roleService", function($scope, $stateParams, $uibModal, userService, roleService) {
 	var self = this;
+	var roles = roleService.get();
 	$scope.showAddModal = function(){
 	  var modalInstance = $uibModal.open({
 	      animation: true,
@@ -13,7 +14,7 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 	          return [{name: "Email", value: "", type: "email", var_name: "email"}, 
 						{name: "First Name", value: "", type: "text", var_name: "first_name"}, 
 						{name: "Last Name", value: "", type: "text", var_name: "last_name"},
-						{name: "Roles", value: [], type: "multiselect", var_name: "roles", options: [{id: 1, name: "Stakeholder"}, {id: 2, name: "Team Member"}]}];
+						{name: "Roles", value: [], type: "multiselect", var_name: "roles", options: roles}];
 	        }
 	      }
 	    });

@@ -1,5 +1,5 @@
 var app = angular.module("teamreporterapp")
-app.controller('teamTableController', ["$scope", "teamService", function($scope, teamService) {
+app.controller('teamTableController', ["$scope", "$rootScope", "teamService", function($scope, $rootScope, teamService) {
 	$scope.teams = [];
 	$scope.add_user = function(){
 		
@@ -14,5 +14,7 @@ app.controller('teamTableController', ["$scope", "teamService", function($scope,
 		}
 
 	});
-
+    $rootScope.$on("team_added", function (event, args) {
+        $scope.teams.push(args);
+    });
 }]);
