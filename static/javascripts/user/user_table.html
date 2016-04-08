@@ -12,7 +12,7 @@
 			<td>{{user.first_name}}</td>
 			<td>{{user.last_name}}</td>
 			<td>{{user.email}}</td>
-			<td>ROLES HERE</td>
+			<td><div ng-repeat="role in user.roles">{{role.name}}</div></td>
 			<td><button class = "btn btn-sm btn-danger">Delete</button></td>
 		</tr>
 		</tbody>

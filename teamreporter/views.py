@@ -65,10 +65,14 @@ class UserView(View):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
         self.check_scope(request, team)
+        memberships = team.membership_set.all()
+        users = []
+        for m in memberships:  # TODO: make this little loop a method call on the object manager
+            user_info = model_to_dict(m.user, fields = ["email", "first_name", "last_name"])
+            user_info["roles"] = [model_to_dict(r) for r in m.roles.all()]
+            users.append(user_info)
 
-        users = team.users.all()
-
-        return JsonResponse({"users": [model_to_dict(user) for user in users]})
+        return JsonResponse({"users": users})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
@@ -89,12 +93,11 @@ class UserView(View):
         if team.users.filter(email = user.email).count(): #check if user in list already
             return JsonResponse({"error": "User already on team"}, status=400)
 
-        membership = Membership(team = team, user = user)
-        membership.set_roles(roles)
-        membership.full_clean()
+        membership = Membership.objects.create(team = team, user = user)
+        membership.roles.add(*roles)
         membership.save()
 
-        return JsonResponse({"user": model_to_dict(user)})
+        return JsonResponse({"user": model_to_dict(user, fields=['email', 'first_name', 'last_name'])})
 
     def delete(self, request, *args, **kwargs):
         pass

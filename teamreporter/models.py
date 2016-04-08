@@ -33,12 +33,12 @@ class Membership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(auto_now=True)
-    roles = models.CharField(max_length = 50, validators = [validate_roles,])
+    roles = models.ManyToManyField(Role)
 
     def set_roles(self, roles):
         self.roles = json.dumps(roles)
 
-    def get_roles(self, roles):
+    def get_roles(self):
         return json.loads(self.roles)
 
 class Report(models.Model):
