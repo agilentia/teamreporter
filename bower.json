@@ -5,6 +5,7 @@
      "angular": "~1.5.0",
      "angular-ui-router": "~0.2.18",
      "angular-bootstrap": "~1.2.2",
+     "angular-bootstrap-multiselect": "~0.3.5",
      "bootstrap": "~3.3.6",
      "angular-smart-table": "2.1.8"
    }

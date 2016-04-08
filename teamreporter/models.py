@@ -6,7 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def add_default_report(sender, instance, **kwargs):
-    Report.objects.get_or_create(team = instance) #this inefficiency can be removed later if there are multiple reports
+    Report.objects.get_or_create(team=instance)  # this inefficiency can be removed later if there are multiple reports
+
 
 class Team(models.Model):
     name = models.CharField(max_length=30)
@@ -14,7 +15,7 @@ class Team(models.Model):
     users = models.ManyToManyField(User)
 
     class Meta:
-        unique_together = (("admin", "name"))
+        unique_together = ("admin", "name")
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
@@ -22,6 +23,7 @@ class Team(models.Model):
 
 class Report(models.Model):
     team = models.ForeignKey(Team)
+
 
 class Question(models.Model):
     report = models.ForeignKey(Report)
@@ -43,4 +45,5 @@ class Answer(models.Model):
     survey = models.ForeignKey(Survey)
     text = models.TextField()
 
-signals.post_save.connect(add_default_report, sender = Team)
+
+signals.post_save.connect(add_default_report, sender=Team)
