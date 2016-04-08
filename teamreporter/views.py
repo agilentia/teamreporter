@@ -69,10 +69,12 @@ class UserView(View):
 		user_info = json.loads(request.body.decode("utf-8") )
 		if not validate_presence(user_info, ["email"]):
 			return JsonResponse({"error": "Invalid User JSON data"}, status = 400)
+			
+		cleaned_user_info = clean(user_info, ["first_name", "last_name", "email"])
 		try:
-			user = User.objects.get(email = user_info["email"])
+			user = User.objects.get(email = cleaned_user_info["email"])
 		except ObjectDoesNotExist:
-			user = User.objects.create(username = user_info["email"], **user_info)
+			user = User.objects.create(username = cleaned_user_info["email"], **cleaned_user_info)
 
 		if user.email in [u.email for u in team.users.all()]:
 			return JsonResponse({"error": "User already on team"}, status = 400)
