@@ -1,4 +1,4 @@
-# Sherpany Team Reporter
+# Sherpany Boomerang
 
 Allows creation and collection of reports to teams by email
 

@@ -135,3 +135,8 @@ class ReportView(View):
 class SurveyView(View):
     def get(self, request, *args, **kwargs):
         pass
+
+@method_decorator(login_required, name='dispatch')
+class RoleView(View):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({"roles": [model_to_dict(r) for r in Role.objects.all()]})

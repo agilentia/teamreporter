@@ -20,6 +20,8 @@ class Team(models.Model):
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
 
+class Role(models.Model):
+    name = models.CharField(max_length = 30)
 
 class Report(models.Model):
     team = models.ForeignKey(Team)
