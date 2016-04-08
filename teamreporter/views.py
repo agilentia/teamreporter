@@ -59,8 +59,7 @@ class UserView(View):
 	def get(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
-		if not team:
-			return JsonResponse({"error": "Team not found in DB!"})
+		self.check_scope(request, team)
 
 		users = team.users.all()
 
@@ -98,7 +97,6 @@ class ReportView(View):
 		report_info = json.loads(request.body.decode("utf-8") )
 
 
-
 	def post(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
@@ -107,7 +105,17 @@ class ReportView(View):
 		report_info = json.loads(request.body.decode("utf-8") )
 		validate_presence(report_info, ["question"])
 		question_string = report_info["question"]
-		question = Question.objects.create(text = question_string, )
+		question = Question.objects.create(text = question_string, report = team.report_set.first())
 
-	def delete(self):
-		pass
+		return JsonResponse({"question": model_to_dict(question)})
+
+	def delete(self, request, *args, **kwargs):
+		question_id = int(self.kwargs["question_id"])
+		question = get_object_or_404(Question, pk = question_id)
+		team = question.report.team
+		self.check_scope(request, team)
+
+		question.active = False
+		question.save()
+
+		return JsonResponse({"question": question})
