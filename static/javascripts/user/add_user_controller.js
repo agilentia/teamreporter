@@ -18,6 +18,7 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 	        }
 	      }
 	    });
+	  
 		modalInstance.result.then(function (user_info) {
 			console.log(user_info);
 		    userService.save($stateParams.team_id, user_info).then(function(resp){

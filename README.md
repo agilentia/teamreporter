@@ -30,3 +30,4 @@ $ Go to http://localhost:5000
 
 ### Improvements
 * Some angular code can be refactored into common packages.  In progress
+* Return model fields in API calls so nothing needs to be hardcoded in angular
