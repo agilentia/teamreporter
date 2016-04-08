@@ -10,16 +10,19 @@ app.factory("teamService", ["$http", function($http){
     				'Content-Type': 'application/json'
 				}
 			}).then(function(resp) {
-				console.log(resp.data.teams);
 				return {teams: resp.data.teams}
 			}, function(error){
 				return {error: error}
 			});
 		},
 
-		save: function(team, user_email) {
+		save: function(team_name) {
 
 		},
+
+		delete: function(team_id) {
+
+		}
 	}
 
 	return service

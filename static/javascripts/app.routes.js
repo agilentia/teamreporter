@@ -13,4 +13,9 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		templateUrl: "/static/javascripts/team/team_list_view.html"
 	})
 
+	.state("question", {
+		url: "/team/:team_id/questions",
+		templateUrl: "/static/javascripts/question/question_list_view.html"
+	})
+
 });

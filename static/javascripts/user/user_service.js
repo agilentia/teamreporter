@@ -1,25 +1,4 @@
 var app = angular.module("teamreporterapp")
-function UserCache(){
-	this.user_cache = {}
-	this.init_team = function(team) {
-		this.user_cache[team] = [];
-	}
-	this.add = function(team, user){
-		if (!(team in this.user_cache)) {
-			init_team();
-		}
-
-		this.user_cache[team].push(user)
-	}
-
-	this.get = function(team){
-		if (!(team in this.user_cache)) {
-			init_team();
-		}
-		return this.user_cache[team]
-	}
-
-}
 app.factory("userService", ["$http", "$rootScope", function($http, $rootScope){
 
 	var service = {
@@ -56,6 +35,10 @@ app.factory("userService", ["$http", "$rootScope", function($http, $rootScope){
 				return {error: error}
 			});
 		},
+
+		delete: function(team, user_id) {
+
+		}
 	}
 
 	return service
