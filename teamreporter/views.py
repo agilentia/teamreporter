@@ -2,9 +2,9 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView, View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from .models import Team, User
+from .models import Team, User, Question, Report
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -52,6 +52,10 @@ class TeamView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
+	def check_scope(self, request, team):
+		if team.admin.email != request.user.email:
+			raise Http404("Team doesn't exist")
+
 	def get(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
@@ -65,8 +69,7 @@ class UserView(View):
 	def post(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
 		team = get_object_or_404(Team, pk = team_id)
-		if team.admin.email != request.user.email:
-			return JsonResponse({"error": "User not authorized"}, status = 401)
+		self.check_scope(request, team)
 
 		user_info = json.loads(request.body.decode("utf-8") )
 		if not validate_presence(user_info, ["email"]):
@@ -89,8 +92,22 @@ class UserView(View):
 class ReportView(View):
 	def get(self, request, *args, **kwargs):
 		team_id = int(self.kwargs["team_id"])
-		if team.admin.email != request.user.email:
-			return JsonResponse({"error": "User not authorized"}, status = 401)
+		team = get_object_or_404(Team, pk = team_id)
+		self.check_scope(request, team)
+
+		report_info = json.loads(request.body.decode("utf-8") )
+
+
 
 	def post(self, request, *args, **kwargs):
+		team_id = int(self.kwargs["team_id"])
+		team = get_object_or_404(Team, pk = team_id)
+		self.check_scope(request, team)
+
+		report_info = json.loads(request.body.decode("utf-8") )
+		validate_presence(report_info, ["question"])
+		question_string = report_info["question"]
+		question = Question.objects.create(text = question_string, )
+
+	def delete(self):
 		pass

@@ -1,11 +1,17 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class UserMethods(User):
     def format_for_js(self):
         return {"email": self.email, "name": self.name, "id": self.id}
     class Meta:
         proxy = True
+
+def add_default_report(sender, instance, **kwargs):
+    if not Report.objects.get(team = instance): #this inefficiency can be removed later if there are multiple reports
+        Report.objects.create(team = instance)
 
 class Team(models.Model):
     name = models.CharField(max_length=30)
@@ -41,3 +47,5 @@ class Answer(models.Model):
     question = models.ForeignKey(Question)
     survey = models.ForeignKey(Survey)
     text = models.TextField()
+
+signals.post_save.connect(add_default_report, sender = Team)
