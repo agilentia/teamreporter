@@ -1,9 +1,13 @@
-dj-database-url==0.4.0
 Django==1.9.5
 django-extensions==1.6.1
 django-registration
 django-registration-defaults
 django-compressor
+dj-database-url==0.4.0
+
+# handling events and scheduling
+django-recurrence==1.2.0
+
 six==1.10.0
 gunicorn==19.4.5
 psycopg2==2.6.1

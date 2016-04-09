@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'teamreporter',
-    "registration_defaults",
+    'recurrence',
+    'registration_defaults',
     'compressor',
     'registration',
 ]

@@ -68,7 +68,7 @@ class UserView(View):
         memberships = team.membership_set.all()
         users = []
         for m in memberships:  # TODO: make this little loop a method call on the object manager
-            user_info = model_to_dict(m.user, fields = ["email", "first_name", "last_name"])
+            user_info = model_to_dict(m.user, fields=["email", "first_name", "last_name"])
             user_info["roles"] = [model_to_dict(r) for r in m.roles.all()]
             users.append(user_info)
 
@@ -83,17 +83,17 @@ class UserView(View):
         if not validate_presence(user_info, ["email", "roles"]):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
-        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email",])
+        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email", ])
         roles = [role["id"] for role in user_info["roles"]]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
         except ObjectDoesNotExist:
             user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
 
-        if team.users.filter(email = user.email).count(): #check if user in list already
+        if team.users.filter(email=user.email).count():  # check if user in list already
             return JsonResponse({"error": "User already on team"}, status=400)
 
-        membership = Membership.objects.create(team = team, user = user)
+        membership = Membership.objects.create(team=team, user=user)
         membership.roles.add(*roles)
         membership.save()
 
@@ -142,6 +142,7 @@ class ReportView(View):
 class SurveyView(View):
     def get(self, request, *args, **kwargs):
         pass
+
 
 @method_decorator(login_required, name='dispatch')
 class RoleView(View):

@@ -1,17 +1,18 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
 from django.db.models import signals
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-import json
+
+from recurrence.fields import RecurrenceField
+
 
 def add_default_report(sender, instance, **kwargs):
     Report.objects.get_or_create(team=instance)  # this inefficiency can be removed later if there are multiple reports
 
+
 class Team(models.Model):
     name = models.CharField(max_length=30)
     admin = models.ForeignKey(User, related_name='+')
-    users = models.ManyToManyField(User, through = 'Membership')
+    users = models.ManyToManyField(User, through='Membership')
 
     class Meta:
         unique_together = ("admin", "name")
@@ -19,8 +20,10 @@ class Team(models.Model):
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
 
+
 class Role(models.Model):
-    name = models.CharField(max_length = 30)
+    name = models.CharField(max_length=30)
+
 
 class Membership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -28,8 +31,12 @@ class Membership(models.Model):
     date_joined = models.DateTimeField(auto_now=True)
     roles = models.ManyToManyField(Role)
 
+
 class Report(models.Model):
     team = models.ForeignKey(Team)
+    recurrences = RecurrenceField(null=True)
+    time = models.TimeField(null=True)
+
 
 class Question(models.Model):
     report = models.ForeignKey(Report)
