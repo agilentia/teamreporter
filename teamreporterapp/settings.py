@@ -8,28 +8,31 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-
-import os
+from celery.schedules import crontab
 from registration_defaults.settings import *
 import dj_database_url
+
+BROKER_URL = os.environ.get('REDIS_URL', 'redis://')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
-# Email backend
-if "local" in os.environ:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+
+# Email backend
+if DEBUG:
+   EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 # Application definition
 
@@ -64,7 +67,7 @@ ROOT_URLCONF = 'teamreporterapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),REGISTRATION_TEMPLATE_DIR],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), REGISTRATION_TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,7 +81,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'teamreporterapp.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -104,6 +106,17 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Celery beat periodic task schedule
+CELERYBEAT_SCHEDULE = {
+    # Checks every hour if survey should be sent to it's team members
+    'issue-surveys': {
+        'task': 'teamreporter.tasks.issue_surveys',
+        'schedule': crontab(minute=0),
+    },
+}
+
+DEFAULT_FROM_EMAIL = 'email@example.com'
 
 
 # Internationalization

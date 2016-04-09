@@ -1,0 +1,9 @@
+Hello {{ user.first_name }}! Please find a moment to answer these questions.
+
+{% for question in questions %}
+    {{ question.text }}
+{% endfor %}
+
+{% comment %}
+    TODO: include link to answer the questions
+{% endcomment %}

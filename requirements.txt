@@ -7,6 +7,8 @@ dj-database-url==0.4.0
 
 # handling events and scheduling
 django-recurrence==1.2.0
+celery==3.1.23
+redis==2.10.5
 
 six==1.10.0
 gunicorn==19.4.5

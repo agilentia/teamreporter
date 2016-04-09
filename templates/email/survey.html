@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+<p>Hello {{ user.first_name }}! Please find a moment to answer these questions.</p>
+
+<ul>
+{% for question in questions %}
+    <li>{{ question.text }}</li>
+{% endfor %}
+</ul>
+
+<p>Have a good day!</p>
+
+{% comment %}
+    TODO: include link to answer the questions
+{% endcomment %}
+
+</body>
+</html>

@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import signals
@@ -36,6 +37,12 @@ class Report(models.Model):
     team = models.ForeignKey(Team)
     recurrences = RecurrenceField(null=True)
     time = models.TimeField(null=True)
+
+    @property
+    def occurs_today(self):
+        today = date.today()
+        today = datetime.combine(today, datetime.min.time())
+        return self.recurrences.after(today, inc=True) == today
 
 
 class Question(models.Model):
