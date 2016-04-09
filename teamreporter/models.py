@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import signals
@@ -36,7 +36,7 @@ class Membership(models.Model):
 class Report(models.Model):
     team = models.ForeignKey(Team)
     recurrences = RecurrenceField(null=True)
-    time = models.TimeField(null=True)
+    send_time = models.TimeField(default=time(10, 00))
 
     @property
     def occurs_today(self):

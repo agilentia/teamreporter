@@ -41,7 +41,7 @@ def issue_surveys():
     """
 
     for report in Report.objects.all():
-        if report.occurs_today and report.time <= now().time():
+        if report.occurs_today and report.send_time <= now().time():
             # TODO: double check if there's no surveys generated for any team member given day
             for user in report.team.users:
                 generate_survey.delay(user.pk, report.pk)
