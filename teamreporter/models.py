@@ -36,7 +36,7 @@ class Membership(models.Model):
 class Report(models.Model):
     team = models.ForeignKey(Team)
     recurrences = RecurrenceField(null=True)
-    send_time = models.TimeField(default=time(10, 00))
+    send_time = models.TimeField(default=time(10, 0))
 
     @property
     def occurs_today(self):

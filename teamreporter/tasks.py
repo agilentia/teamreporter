@@ -9,29 +9,31 @@ from teamreporterapp.celery import app
 
 
 @app.task
+def send_survey(user_pk, survey_pk):
+    user = User.objects.get(pk=user_pk)
+    survey = Survey.objects.get(pk=survey_pk)
+
+    context = Context({'user': user, 'questions': survey.report.question_set.filter(active=True)})
+    subject = render_to_string('email/survey_subject.txt', context)
+
+    text = get_template('email/survey.txt')
+    html = get_template('email/survey.html')
+    text_content = text.render(context)
+    html_content = html.render(context)
+
+    user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
+
+
+@app.task
 def generate_survey(user_pk, report_pk):
     user = User.objects.get(pk=user_pk)
     report = Report.objects.get(pk=report_pk)
 
-    survey, created = Survey.objects.get_or_create({
-        'user': user,
-        'report': report,
-        'date': now().date()
-    })
+    survey, created = Survey.objects.get_or_create(user=user, report=report, date=now().date())
 
     if created:
         # prepare email and send it to user
-
-        context = Context({'user': user, 'questions': report.question_set.filter(active=True)})
-        subject = render_to_string('email/survey_subject.txt', context)
-
-        text = get_template('email/survey.txt')
-        html = get_template('email/survey.html')
-        text_content = text.render(context)
-        html_content = html.render(context)
-
-        user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
-
+        send_survey.delay(user.pk, survey.pk)
 
 
 @app.task
