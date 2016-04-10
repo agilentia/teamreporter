@@ -1,9 +1,10 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from .models import Team, User, Question, Role, Membership
+from .models import Team, User, Question, Role, Membership, Report, Survey
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -148,3 +149,16 @@ class SurveyView(View):
 class RoleView(View):
     def get(self, request, *args, **kwargs):
         return JsonResponse({"roles": [model_to_dict(r, fields=["id", "name"]) for r in Role.objects.all()]})
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class SummaryDebugPreview(TemplateView):
+    template_name = 'email/summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['user_sent_report'] = Survey.objects.get(report=kwargs['report'],
+                                                         user=self.request.user).completed is not None
+        context['surveys'] = Report.objects.get(pk=kwargs['report']).survey_set.all()
+        return context

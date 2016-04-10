@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from teamreporter.views import IndexView, UserView, TeamView, RoleView
+from teamreporter.views import IndexView, UserView, TeamView, RoleView, SummaryDebugPreview
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^team/$', TeamView.as_view(), name="team_view"),
     url(r'^team/(?P<team_id>\d+)/users/$', UserView.as_view(), name="user_view"),
     url(r'^role/$', RoleView.as_view(), name="role_view"),
+    url(r'^debug/report/(?P<report>\d+)/$', SummaryDebugPreview.as_view(), name='report'),
     url('^$', IndexView.as_view(), name='index'),
 ]
