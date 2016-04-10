@@ -28,11 +28,9 @@ SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 # Email backend
 if DEBUG:
-   EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Application definition
 
@@ -117,7 +115,6 @@ CELERYBEAT_SCHEDULE = {
 }
 
 DEFAULT_FROM_EMAIL = 'email@example.com'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

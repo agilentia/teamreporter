@@ -37,12 +37,13 @@ class Report(models.Model):
     team = models.ForeignKey(Team)
     recurrences = RecurrenceField(null=True)
     send_time = models.TimeField(default=time(10, 0))
+    summary_time = models.TimeField(default=time(18, 0))
 
     @property
     def occurs_today(self):
         today = date.today()
         today = datetime.combine(today, datetime.min.time())
-        return self.recurrences.after(today, inc=True) == today
+        return self.recurrences and self.recurrences.after(today, inc=True) == today
 
 
 class Question(models.Model):
