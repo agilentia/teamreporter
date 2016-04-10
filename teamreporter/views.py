@@ -162,3 +162,15 @@ class SummaryDebugPreview(TemplateView):
                                                          user=self.request.user).completed is not None
         context['surveys'] = Report.objects.get(pk=kwargs['report']).survey_set.all()
         return context
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class SurveyDebugPreview(TemplateView):
+    template_name = 'email/survey.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SurveyDebugPreview, self).get_context_data(**kwargs)
+        survey = Survey.objects.get(pk=kwargs['survey'])
+        context['user'] = survey.user
+        context['questions'] = survey.report.question_set.filter(active=True)
+        return context

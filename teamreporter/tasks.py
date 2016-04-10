@@ -10,11 +10,10 @@ from teamreporterapp.celery import app
 
 
 @app.task
-def send_survey(user_pk, survey_pk):
-    user = User.objects.get(pk=user_pk)
+def send_survey(survey_pk):
     survey = Survey.objects.get(pk=survey_pk)
 
-    context = Context({'user': user, 'questions': survey.report.question_set.filter(active=True)})
+    context = Context({'user': survey.user, 'questions': survey.report.question_set.filter(active=True)})
     subject = render_to_string('email/survey_subject.txt', context)
 
     text = get_template('email/survey.txt')
@@ -34,7 +33,7 @@ def generate_survey(user_pk, report_pk):
 
     if created:
         # prepare email and send it to user
-        send_survey.delay(user.pk, survey.pk)
+        send_survey.delay(survey.pk)
 
 
 @app.task
