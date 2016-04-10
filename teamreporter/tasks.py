@@ -5,6 +5,7 @@ from django.template.loader import render_to_string, get_template
 from django.utils.timezone import now
 
 from teamreporter.models import Survey, Report
+from teamreporter.utils import send_mass_html_mail
 from teamreporterapp.celery import app
 
 
@@ -34,6 +35,33 @@ def generate_survey(user_pk, report_pk):
     if created:
         # prepare email and send it to user
         send_survey.delay(user.pk, survey.pk)
+
+
+@app.task
+def send_summary(report_pk):
+    report = Report.objects.get(pk=report_pk)
+    messages = []
+    for user in report.team.users.all():
+        context = Context({'user': user, 'surveys': report.survey_set.all(),
+                           'user_sent_report': Survey.objects.get(report=report, user=user).completed is not None})
+        subject = render_to_string('email/summary_subject.txt', context)
+
+        text = get_template('email/summary.txt')
+        html = get_template('email/summary.html')
+        text_content = text.render(context)
+        html_content = html.render(context)
+        messages.append([subject, text_content, html_content, settings.DEFAULT_FROM_EMAIL, [user.email]])
+
+    send_mass_html_mail(messages)
+    report.summary_submitted = now()
+    report.save()
+
+
+@app.task
+def issue_summaries():
+    for report in Report.objects.all():
+        if report.occurs_today and report.summary_time <= now().time() and not report.summary_submitted:
+            send_summary.delay(report.pk)
 
 
 @app.task

@@ -107,11 +107,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Celery beat periodic task schedule
 CELERYBEAT_SCHEDULE = {
-    # Checks every hour if survey should be sent to it's team members
+    # Checks every 15 minutes if survey should be sent to it's team members
     'issue-surveys': {
         'task': 'teamreporter.tasks.issue_surveys',
-        'schedule': crontab(minute=0),
+        'schedule': crontab(minute='*/15'),
     },
+    # Checks every 15 minutes if summary should be generated
+    'issue-summaries': {
+        'task': 'teamreporter.tasks.issue_summaries',
+        'schedule': crontab(minute='*/15')
+    }
 }
 
 DEFAULT_FROM_EMAIL = 'email@example.com'

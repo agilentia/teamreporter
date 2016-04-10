@@ -16,7 +16,7 @@ class Team(models.Model):
     users = models.ManyToManyField(User, through='Membership')
 
     class Meta:
-        unique_together = ("admin", "name")
+        unique_together = ('admin', 'name')
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
@@ -38,6 +38,10 @@ class Report(models.Model):
     recurrences = RecurrenceField(null=True)
     send_time = models.TimeField(default=time(10, 0))
     summary_time = models.TimeField(default=time(18, 0))
+    summary_submitted = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return '{0} - {1}'.format(self.pk, self.team)
 
     @property
     def occurs_today(self):
@@ -66,5 +70,7 @@ class Answer(models.Model):
     survey = models.ForeignKey(Survey)
     text = models.TextField()
 
+    class Meta:
+        unique_together = ('survey', 'question')
 
 signals.post_save.connect(add_default_report, sender=Team)

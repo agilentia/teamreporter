@@ -1,1 +1,1 @@
-Boomerang calling in for a minute of your time!
+{% load i18n %}{% trans "Boomerang calling in for a minute of your time!" %}
