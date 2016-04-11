@@ -23,7 +23,6 @@ app.factory("userService", ["User", function(User){
 		},
 
 		delete: function(team_id, user_id) {
-			console.log(user_id)
 			User.delete({team_id: team_id, id: user_id}, function(data){
 				for (var i = 0; i < users.length; i++ ) {
 					if (users[i].id == data.user.id){

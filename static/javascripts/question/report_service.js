@@ -5,6 +5,8 @@ app.factory("reportService", ["Report", function(Report){
 		init: function(team_id) {
 			query = Report.get({team_id: team_id}, function(data){
 				questions = data.questions;
+			}, function(error){
+				// Deal here
 			});
 			return query.$promise;
 		},

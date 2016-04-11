@@ -20,7 +20,14 @@ app.config(function($stateProvider, $urlRouterProvider) {
 	})
 	.state("team", {
 		url: "/team/",
-		templateUrl: "/static/javascripts/team/team_list_view.html"
+		templateUrl: "/static/javascripts/team/team_list_view.html",
+		resolve: {
+			teamService: 'teamService',
+			team: function(teamService) {
+				console.log("HERE")
+				return teamService.init();
+			}
+		}
 	})
 
 	.state("report", {

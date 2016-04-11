@@ -8,3 +8,7 @@ app.factory("Report", function($resource){
 app.factory("User", function($resource){
 	return $resource("/team/:team_id/users/:id", null);
 })
+
+app.factory("Team", function($resource){
+	return $resource("/team/:id", null);
+})
