@@ -15,13 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from teamreporter.views import IndexView, UserView, TeamView, RoleView
+from teamreporter.views import IndexView, UserView, TeamView, RoleView, ReportView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('registration.backends.hmac.urls')),
     url(r'^team/$', TeamView.as_view(), name="team_view"),
-    url(r'^team/(?P<team_id>\d+)/users/$', UserView.as_view(), name="user_view"),
+    url(r'^team/(?P<team_id>\d+)/report/questions/?$', ReportView.as_view(), name="report_view"), #treating this as a questions endpoint for now
+    url(r'^team/(?P<team_id>\d+)/report/questions/(?P<question_id>\d+)/?$', ReportView.as_view(), name="questions_view"), #a bit hacky, but can make separate resource later for questions
+    url(r'^team/(?P<team_id>\d+)/users/?$', UserView.as_view(), name="user_view"),
     url(r'^role/$', RoleView.as_view(), name="role_view"),
     url('^$', IndexView.as_view(), name='index'),
 ]

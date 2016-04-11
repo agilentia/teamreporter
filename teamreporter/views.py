@@ -10,6 +10,10 @@ from django.utils.decorators import method_decorator
 import json
 
 
+def check_scope(request, team):
+    if team.admin.email != request.user.email:
+        raise Http404("Team doesn't exist")
+
 def validate_presence(d, keys):
     for k in keys:
         if k not in d:
@@ -57,14 +61,10 @@ class TeamView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
-    def check_scope(self, request, team):
-        if team.admin.email != request.user.email:
-            raise Http404("Team doesn't exist")
-
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
         memberships = team.membership_set.all()
         users = []
         for m in memberships:  # TODO: make this little loop a method call on the object manager
@@ -77,7 +77,7 @@ class UserView(View):
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         user_info = json.loads(request.body.decode("utf-8"))
         if not validate_presence(user_info, ["email", "roles"]):
@@ -108,16 +108,16 @@ class ReportView(View):
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
         report = team.report_set.first()
-        questions = report.questions.all()
+        questions = report.question_set.filter(active = True)
 
         return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         report_info = json.loads(request.body.decode("utf-8"))
         validate_presence(report_info, ["question"])
@@ -130,12 +130,12 @@ class ReportView(View):
         question_id = int(self.kwargs["question_id"])
         question = get_object_or_404(Question, pk=question_id)
         team = question.report.team
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         question.active = False
         question.save()
 
-        return JsonResponse({"question": question})
+        return JsonResponse({"question": model_to_dict(question, fields = ("text", "id"))})
 
 
 @method_decorator(login_required, name='dispatch')

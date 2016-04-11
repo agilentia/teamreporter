@@ -1,9 +1,6 @@
 var app = angular.module("teamreporterapp")
 app.controller('teamTableController', ["$scope", "$rootScope", "teamService", function($scope, $rootScope, teamService) {
 	$scope.teams = [];
-	$scope.add_user = function(){
-		
-	}
 	teamService.get().then(function(resp){
 		if("error" in resp) {
 			return
