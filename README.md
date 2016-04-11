@@ -1,6 +1,6 @@
 # Boomerang
 
-[Boomerang](https://github.com/agilentia/teamreporter) is an application that helps you to get status updates and reports from your team in an easy and automated way.
+[Boomerang](https://github.com/agilentia/teamreporter) is an application that helps you to get status updates from your team in an easy and automated way.
 
 Boomerang was inspired by [Teamreporter](http://www.teamreporterapp.com/), which ended its operations in 2016-April.
 
