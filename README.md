@@ -7,9 +7,10 @@ Boomerang was inspired by [Teamreporter](http://www.teamreporterapp.com/), which
 
 ## Team
 
-[![Ânderson Quadros](https://avatars0.githubusercontent.com/u/1380937?v=3&s=460 =120x120)](https://github.com/anquadros) | [![Daniel Borzęcki](https://avatars2.githubusercontent.com/u/265781?v=3&s=460 =120x120)](https://github.com/borzecki) | [![Mathias Brenner](https://avatars1.githubusercontent.com/u/815855?v=3&s=460 =120x120)](https://github.com/mathiasbrenner) | [![Tony Lambropoulos](https://avatars0.githubusercontent.com/u/1459121?v=3&s=460 =120x120)](https://github.com/tony7126)
----|---|---
-[Ânderson Quadros](https://github.com/anquadros) | [Daniel Borzęcki](https://github.com/borzecki) | [Mathias Brenner](https://github.com/mathiasbrenner) | [Tony Lambropoulos](https://github.com/tony7126)
+* **Ânderson Quadros** - [anquadros](https://github.com/anquadros) - *Initial work*
+* **Daniel Borzęcki** - [borzecki](https://github.com/borzecki) - *Initial work*
+* **Mathias Brenner** - [mathiasbrenner](https://github.com/mathiasbrenner) - *Initial work*
+* **Tony Lambropoulos** - [tony7126](https://github.com/tony7126) - *Initial work* 
 
 
 ## Contributors
