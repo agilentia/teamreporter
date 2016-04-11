@@ -7,8 +7,13 @@ app.config(function($stateProvider, $urlRouterProvider) {
 	.state("user", {
 		url: "/team/:team_id/users",
 		templateUrl: "/static/javascripts/user/user_list_view.html",
-		resolve:{
-			"RoleServiceData": function(roleService) {
+		resolve: {
+			userService: 'userService',
+			user: function(userService, $stateParams) {
+				var team_id = $stateParams.team_id;
+				return userService.init(team_id);
+			},
+			RoleServiceData: function(roleService) {
 				return roleService.promise;
 			}
 		}
@@ -24,9 +29,8 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		resolve: {
 			reportService: 'reportService',
 			report: function(reportService, $stateParams) {
-				console.log("TEAM_ID", $stateParams.team_id, reportService);
 				var team_id = $stateParams.team_id;
-				return reportService.init(team_id).$promise;
+				return reportService.init(team_id);
 			}
 		}
 	})

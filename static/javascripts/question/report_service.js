@@ -1,5 +1,5 @@
 var app = angular.module("teamreporterapp")
-app.factory("reportService", ["Report", "$rootScope", function(Report, $rootScope){
+app.factory("reportService", ["Report", function(Report){
 	var questions = [];
 	var service = {
 		init: function(team_id) {

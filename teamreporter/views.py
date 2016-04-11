@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import IntegrityError
 from .models import Team, User, Question, Role, Membership
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
@@ -68,7 +69,7 @@ class UserView(View):
         memberships = team.membership_set.all()
         users = []
         for m in memberships:  # TODO: make this little loop a method call on the object manager
-            user_info = model_to_dict(m.user, fields = ["email", "first_name", "last_name"])
+            user_info = model_to_dict(m.user, fields = ["email", "first_name", "last_name","id"])
             user_info["roles"] = [model_to_dict(r) for r in m.roles.all()]
             users.append(user_info)
 
@@ -90,18 +91,24 @@ class UserView(View):
         except ObjectDoesNotExist:
             user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
 
-        if team.users.filter(email = user.email).count(): #check if user in list already
-            return JsonResponse({"error": "User already on team"}, status=400)
+        try:
+            membership = Membership.objects.create(team = team, user = user)
+            membership.roles.add(*roles)
+            membership.save()
+        except IntegrityError:
+            JsonResponse({"error": "User already a part of team"}, status=400)
 
-        membership = Membership.objects.create(team = team, user = user)
-        membership.roles.add(*roles)
-        membership.save()
-
-        return JsonResponse({"user": model_to_dict(user, fields=['email', 'first_name', 'last_name'])})
+        return JsonResponse({"user": model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])})
 
     def delete(self, request, *args, **kwargs):
-        pass
+        user_id = int(self.kwargs["user_id"])
+        team_id = int(self.kwargs["team_id"])
+        user = get_object_or_404(User, pk=user_id)
+        team = get_object_or_404(Team, pk=team_id)
+        check_scope(request, team)
+        Membership.objects.filter(user = user, team = team).delete()
 
+        return JsonResponse({"user": model_to_dict(user, fields = ("email", "id"))})
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(View):

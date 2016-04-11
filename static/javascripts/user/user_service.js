@@ -1,43 +1,40 @@
 var app = angular.module("teamreporterapp")
-app.factory("userService", ["$http", "$rootScope", function($http, $rootScope){
-
+app.factory("userService", ["User", function(User){
+	var users = [];
 	var service = {
-		get: function(team) {
-			return $http({
-				method: 'GET',
-				url: "/team/" + team + "/users/", 
-				headers: {
-    				'Content-Type': 'application/json'
+		init: function(team_id) {
+			query = User.get({team_id: team_id}, function(data){
+				users = data.users;
+			});
+			return query.$promise;
+		},
+
+		get: function(){
+			return users;
+		},
+
+		save: function(team_id, user_info) {
+			console.log(user_info)
+			save = User.save({team_id: team_id}, user_info, function(data){
+				console.log(data.user);
+				users.push(data.user);
+			});
+			return save.$promise;
+		},
+
+		delete: function(team_id, user_id) {
+			console.log(user_id)
+			User.delete({team_id: team_id, id: user_id}, function(data){
+				for (var i = 0; i < users.length; i++ ) {
+					if (users[i].id == data.user.id){
+						users.splice(i, 1);
+					}
 				}
-			}).then(function(resp) {
-				var user_obj = {users: resp.data.users};
-				return user_obj
-			}, function(error){
-				return {error: error}
 			});
 		},
 
-		save: function(team, user_info) {
-			return $http({
-				method: 'POST',
-				url: "/team/" + team + "/users/",
-				data: user_info,
-				headers: {
-    				'Content-Type': 'application/json'
-				}
-			}).then(function(resp) {
-				var user_obj = {user: resp.data.user};
-				$rootScope.$broadcast('user_added', user_obj)
-				return user_obj
+		userModel: {users: users}
 
-			}, function(error){
-				return {error: error}
-			});
-		},
-
-		delete: function(team, user_id) {
-
-		}
 	}
 
 	return service

@@ -33,6 +33,9 @@ DEBUG = True
 
 APPEND_SLASH = False
 
+# login redirect URL
+LOGIN_REDIRECT_URL = '/'
+
 # Application definition
 
 INSTALLED_APPS = [
