@@ -1,5 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
+from django.views.generic import FormView
 from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
@@ -9,7 +11,9 @@ from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from .models import Team, User, Question, Role, Membership, Report, Survey
+from .forms import SurveyForm
+from .models import Team, User, Question, Role, Membership, Report, Survey, Answer
+from .decorators import survey_completed
 
 import json
 
@@ -151,10 +155,40 @@ class ReportView(View):
         return JsonResponse({"question": model_to_dict(question, fields=("text", "id"))})
 
 
-@method_decorator(login_required, name='dispatch')
-class SurveyView(View):
-    def get(self, request, *args, **kwargs):
-        pass
+@method_decorator(survey_completed, 'dispatch')
+class SurveyView(FormView):
+    template_name = 'survey.html'
+    form_class = SurveyForm
+    success_url = '/thankyou/'
+
+    @property
+    def survey(self):
+        return get_object_or_404(Survey, pk=self.kwargs['uuid'])
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form. Include ``questions`` for initiating survey.
+        """
+        kwargs = super(SurveyView, self).get_form_kwargs()
+        kwargs['questions'] = self.survey.report.question_set.filter(active=True)
+        return kwargs
+
+    def form_valid(self, form):
+        survey = self.survey
+        for question_pk, response in form.extract_answers():
+            question = Question.objects.get(pk=question_pk)
+            answer, created = Answer.objects.get_or_create(question=question, survey=survey)
+            answer.text = response
+            answer.save()
+
+        survey.completed = now()
+        survey.save()
+
+        return super(SurveyView, self).form_valid(form)
+
+
+class ThankYouView(TemplateView):
+    template_name = 'thankyou.html'
 
 
 @method_decorator(login_required, name='dispatch')

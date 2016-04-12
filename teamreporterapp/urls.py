@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from teamreporter.views import IndexView, UserView, TeamView, RoleView, SummaryDebugPreview, SurveyDebugPreview, \
-    ReportView
+from teamreporter.views import (
+    IndexView, UserView, TeamView, RoleView, SummaryDebugPreview,
+    SurveyDebugPreview, ReportView, SurveyView, ThankYouView
+)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -31,9 +33,14 @@ urlpatterns = [
     url(r'^team/(?P<team_id>\d+)/users/(?P<user_id>\d+)/?$', UserView.as_view(), name="user_detail_view"),
     # a bit hacky, but can make separate resource later for questions
     url(r'^role/$', RoleView.as_view(), name="role_view"),
+
+    # survey completion page
     url(r'^survey/(?P<uuid>[^/]+)/$', SurveyView.as_view(), name='survey_view'),
+
+    # debug for email templates
     url(r'^debug/report/(?P<report>\d+)/$', SummaryDebugPreview.as_view()),
     url(r'^debug/survey/(?P<survey>[^/]+)/$', SurveyDebugPreview.as_view()),
+
     url(r'^thankyou/$', ThankYouView.as_view()),
     url('^$', IndexView.as_view(), name='index'),
 ]
