@@ -4,16 +4,14 @@
 		<th>Name</th>
 		<th>View Users</th>
 		<th>View Team Questions</th>
-		<th>Your Role</th>
 		<th>Delete</th>
 		</thead>
 		<tbody>
 		<tr ng-repeat="team in teams">
 			<td>{{team.name}}</td>
 			<td><a ui-sref="user({team_id: team.id})">View</a> </td>
-			<td><a ui-sref="question({team_id: team.id})">View</a> </td>
-			<td>ROLE HERE (admin or minion)</td>
-			<td><button class = "btn btn-sm btn-danger">Delete</button></td>
+			<td><a ui-sref="report({team_id: team.id})">View</a> </td>
+			<td><button ng-click="teamService.delete(team_id)" class = "btn btn-sm btn-danger">Delete</button></td>
 		</tr>
 		</tbody>
 	</table>

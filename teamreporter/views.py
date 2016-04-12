@@ -4,11 +4,19 @@ from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from .models import Team, User, Question, Role, Membership, Report, Survey
+from django.db import IntegrityError
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+
+from .models import Team, User, Question, Role, Membership, Report, Survey
+
 import json
+
+
+def check_scope(request, team):
+    if team.admin.email != request.user.email:
+        raise Http404("Team doesn't exist")
 
 
 def validate_presence(d, keys):
@@ -58,18 +66,14 @@ class TeamView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
-    def check_scope(self, request, team):
-        if team.admin.email != request.user.email:
-            raise Http404("Team doesn't exist")
-
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
         memberships = team.membership_set.all()
         users = []
         for m in memberships:  # TODO: make this little loop a method call on the object manager
-            user_info = model_to_dict(m.user, fields=["email", "first_name", "last_name"])
+            user_info = model_to_dict(m.user, fields=["email", "first_name", "last_name", "id"])
             user_info["roles"] = [model_to_dict(r) for r in m.roles.all()]
             users.append(user_info)
 
@@ -78,30 +82,38 @@ class UserView(View):
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         user_info = json.loads(request.body.decode("utf-8"))
         if not validate_presence(user_info, ["email", "roles"]):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
         cleaned_user_info = clean(user_info, ["first_name", "last_name", "email", ])
-        roles = [role["id"] for role in user_info["roles"]]
+        role_ids = [role["id"] for role in user_info["roles"]]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
         except ObjectDoesNotExist:
             user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
 
-        if team.users.filter(email=user.email).count():  # check if user in list already
-            return JsonResponse({"error": "User already on team"}, status=400)
-
-        membership = Membership.objects.create(team=team, user=user)
-        membership.roles.add(*roles)
-        membership.save()
-
-        return JsonResponse({"user": model_to_dict(user, fields=['email', 'first_name', 'last_name'])})
+        try:
+            membership = Membership.objects.create(team=team, user=user)
+            membership.roles.add(*role_ids)
+            membership.save()
+        except IntegrityError:
+            JsonResponse({"error": "User already a part of team"}, status=400)
+        user_dict = model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])
+        user_dict["roles"] = user_info["roles"]
+        return JsonResponse({"user": user_dict})
 
     def delete(self, request, *args, **kwargs):
-        pass
+        user_id = int(self.kwargs["user_id"])
+        team_id = int(self.kwargs["team_id"])
+        user = get_object_or_404(User, pk=user_id)
+        team = get_object_or_404(Team, pk=team_id)
+        check_scope(request, team)
+        Membership.objects.filter(user=user, team=team).delete()
+
+        return JsonResponse({"user": model_to_dict(user, fields=("email", "id"))})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -109,16 +121,16 @@ class ReportView(View):
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
         report = team.report_set.first()
-        questions = report.questions.all()
+        questions = report.question_set.filter(active=True)
 
         return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         report_info = json.loads(request.body.decode("utf-8"))
         validate_presence(report_info, ["question"])
@@ -131,12 +143,12 @@ class ReportView(View):
         question_id = int(self.kwargs["question_id"])
         question = get_object_or_404(Question, pk=question_id)
         team = question.report.team
-        self.check_scope(request, team)
+        check_scope(request, team)
 
         question.active = False
         question.save()
 
-        return JsonResponse({"question": question})
+        return JsonResponse({"question": model_to_dict(question, fields=("text", "id"))})
 
 
 @method_decorator(login_required, name='dispatch')

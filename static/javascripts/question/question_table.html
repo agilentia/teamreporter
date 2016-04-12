@@ -1,0 +1,14 @@
+<div>
+	<table st-table="questions" class="table table-striped">
+		<thead>
+		<th>Question</th>
+		<th>Delete</th>
+		</thead>
+		<tbody>
+		<tr ng-repeat="question in questions">
+			<td>{{question.text}}</td>
+			<td><button ng-click="reportService.delete(team_id, question.id)" class = "btn btn-sm btn-danger">Delete</button></td>
+		</tr>
+		</tbody>
+	</table>
+</div>

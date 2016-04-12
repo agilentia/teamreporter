@@ -22,15 +22,27 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
+# Email backend
+if "local" in os.environ:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = os.environ["SENDGRID_USERNAME"]
+    EMAIL_HOST_PASSWORD = os.environ["SENDGRID_PASSWORD"]
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Email backend
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Must not require slash appending for ngResource to work correctly
+APPEND_SLASH = False
+
+# login redirect URL
+LOGIN_REDIRECT_URL = '/'
 
 # Application definition
 
@@ -89,6 +101,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

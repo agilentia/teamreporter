@@ -1,5 +1,6 @@
-var teamreporterapp = angular.module('teamreporterapp', ['ui.router', 'ui.bootstrap', 'smart-table', 'ui.multiselect'])
-.config(function($httpProvider) {
+var teamreporterapp = angular.module('teamreporterapp', ["ngResource", 'ui.router', 'ui.bootstrap', 'smart-table', 'ui.multiselect'])
+.config(function($httpProvider, $resourceProvider) {
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $resourceProvider.defaults.stripTrailingSlashes = false;
 });

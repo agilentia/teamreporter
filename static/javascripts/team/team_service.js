@@ -1,40 +1,39 @@
 var app = angular.module("teamreporterapp")
-app.factory("teamService", ["$http", "$rootScope", function($http, $rootScope){
-
+app.factory("teamService", ["Team", function(Team){
+	var teams = [];
 	var service = {
-		get: function(team) {
-			return $http({
-				method: 'GET',
-				url: "/team/",
-				headers: {
-    				'Content-Type': 'application/json'
-				}
-			}).then(function(resp) {
-				return {teams: resp.data.teams}
-			}, function(error){
-				return {error: error}
+		init: function() {
+			query = Team.get(function(data){
+				teams = data.teams;
+			}, function(response){
+				// deal with exception
 			});
+			return query.$promise;
+		},
+
+		get: function(){
+			return teams;
 		},
 
 		save: function(team_info) {
-			return $http({
-				method: 'POST',
-				url: "/team/",
-				data: {name: team_info.name},
-				headers: {
-    				'Content-Type': 'application/json'
-				}
-			}).then(function(resp) {
-				$rootScope.$broadcast('team_added', resp.data.team)
-				return {team: resp.data.team}
-			}, function(error){
-				return {error: error}
+			save = Team.save(team_info, function(data){
+				teams.push(data.team);
 			});
+			return save.$promise;
 		},
 
 		delete: function(team_id) {
+			Team.delete({team_id: team_id}, function(data){
+				for (var i = 0; i < teams.length; i++ ) {
+					if (teams[i].id == data.team.id){
+						teams.splice(i, 1);
+					}
+				}
+			});
+		},
 
-		}
+		teamModel: {teams: teams}
+
 	}
 
 	return service

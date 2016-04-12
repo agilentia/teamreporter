@@ -16,7 +16,7 @@ class Team(models.Model):
     users = models.ManyToManyField(User, through='Membership')
 
     class Meta:
-        unique_together = ('admin', 'name')
+        unique_together = (("admin", "name"),)
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
@@ -31,6 +31,9 @@ class Membership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     date_joined = models.DateTimeField(auto_now=True)
     roles = models.ManyToManyField(Role)
+
+    class Meta:
+        unique_together = (("user", "team"),)
 
 
 class Report(models.Model):
