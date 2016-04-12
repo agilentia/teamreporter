@@ -23,7 +23,7 @@
 <table class="btn-primary" cellpadding="0" cellspacing="0" border="0">
     <tr>
         <td>
-            <a href="{% url 'survey_view' survey.pk %}">{% trans "Complete survey" %}</a>
+            <a href="{{SITE_URL}}{% url 'survey_view' survey.pk %}">{% trans "Complete survey" %}</a>
         </td>
     </tr>
 </table>

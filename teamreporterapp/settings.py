@@ -36,7 +36,9 @@ else:
 SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
+
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:5000/')
 
 # Must not require slash appending for ngResource to work correctly
 APPEND_SLASH = False

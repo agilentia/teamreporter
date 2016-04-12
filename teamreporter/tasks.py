@@ -19,6 +19,7 @@ def send_survey(survey_pk):
 
     context = Context({'survey': survey,
                        'questions': survey.report.question_set.filter(active=True)})  # TODO: use manager instead
+    context['SITE_URL'] = settings.SITE_URL
     subject = render_to_string('email/survey_subject.txt', context)
 
     text = get_template('email/survey.txt')
@@ -55,6 +56,7 @@ def send_summary(report_pk):
         context = Context({'user': user,
                            'surveys': Survey.objects.filter(report=report, date=now().date()),
                            'user_sent_report': Survey.objects.get(report=report, user=user).completed is not None})
+        context['SITE_URL'] = settings.SITE_URL
         subject = render_to_string('email/summary_subject.txt', context)
 
         text = get_template('email/summary.txt')
