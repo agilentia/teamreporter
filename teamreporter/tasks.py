@@ -34,7 +34,7 @@ def generate_survey(user_pk, report_pk):
     user = User.objects.get(pk=user_pk)
     report = Report.objects.get(pk=report_pk)
 
-    if user not in report.team.users:
+    if not report.team.users.filter(pk=user_pk).exists():
         logger.warning('Generate survey executed with user from outside team!')
         return False
 
@@ -83,7 +83,7 @@ def issue_surveys():
     for report in Report.objects.all():
         if report.occurs_today and report.send_time <= now().time():
             # TODO: double check if there's no surveys generated for any team member given day
-            for user in report.team.users:
+            for user in report.team.users.all():
                 generate_survey.delay(user.pk, report.pk)
 
             # make sure to reset summary submission otherwise it will not be sent
