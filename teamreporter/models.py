@@ -42,16 +42,23 @@ class Report(models.Model):
     recurrences = RecurrenceField(null=True)
     send_time = models.TimeField(default=time(10, 0))
     summary_time = models.TimeField(default=time(18, 0))
-    summary_submitted = models.DateTimeField(null=True)
+
+    # This variable is used in order to ensure summary is not sent twice a day
+    summary_submitted = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return '{0} - {1}'.format(self.pk, self.team)
 
     @property
     def occurs_today(self):
+        """
+        Returns True if report should be submitted today.
+        """
+        if not self.recurrences:
+            return False
         today = date.today()
         today = datetime.combine(today, datetime.min.time())
-        return self.recurrences and self.recurrences.after(today, inc=True) == today
+        return self.recurrences.after(today, inc=True).date() == date.today()
 
 
 class Question(models.Model):

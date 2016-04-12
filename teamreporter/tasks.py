@@ -85,3 +85,7 @@ def issue_surveys():
             # TODO: double check if there's no surveys generated for any team member given day
             for user in report.team.users:
                 generate_survey.delay(user.pk, report.pk)
+
+            # make sure to reset summary submission otherwise it will not be sent
+            report.summary_submitted = None
+            report.save()
