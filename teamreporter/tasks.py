@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 def send_survey(survey_pk):
     survey = Survey.objects.get(pk=survey_pk)
 
-    context = Context({'user': survey.user, 'survey': survey,
+    context = Context({'survey': survey,
                        'questions': survey.report.question_set.filter(active=True)})  # TODO: use manager instead
     subject = render_to_string('email/survey_subject.txt', context)
 
@@ -52,7 +52,8 @@ def send_summary(report_pk):
     report = Report.objects.get(pk=report_pk)
     messages = []
     for user in report.team.users.all():
-        context = Context({'user': user, 'surveys': report.survey_set.all(),
+        context = Context({'user': user,
+                           'surveys': Survey.objects.filter(report=report, date=now().date()),
                            'user_sent_report': Survey.objects.get(report=report, user=user).completed is not None})
         subject = render_to_string('email/summary_subject.txt', context)
 

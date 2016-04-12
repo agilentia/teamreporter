@@ -206,7 +206,7 @@ class SummaryDebugPreview(TemplateView):
         context['user'] = self.request.user
         context['user_sent_report'] = Survey.objects.get(report=kwargs['report'],
                                                          user=self.request.user).completed is not None
-        context['surveys'] = Report.objects.get(pk=kwargs['report']).survey_set.all()
+        context['surveys'] = Survey.objects.filter(report=kwargs['report'], date=now().date())
         return context
 
 
@@ -217,7 +217,6 @@ class SurveyDebugPreview(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SurveyDebugPreview, self).get_context_data(**kwargs)
         survey = Survey.objects.get(pk=kwargs['survey'])
-        context['user'] = survey.user
         context['survey'] = survey
         context['questions'] = survey.report.question_set.filter(active=True)
         return context

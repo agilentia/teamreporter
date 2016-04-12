@@ -15,7 +15,7 @@
 <p>{% blocktrans %}Below you'll find summary report from the rest of your team:{% endblocktrans %}</p>
 <ul>
     {% for survey in surveys %}
-        <h3>{{survey.user.get_full_name}} - {{user.email}}</h3>
+        <h3>{{survey.user.get_full_name}} - {{survey.user.email}}</h3>
         {% for answer in survey.answer_set.all %}
             <p><b>{{answer.question.text}}</b> - {{answer.text}}</p>
         {% endfor %}
