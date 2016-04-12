@@ -85,7 +85,7 @@ class UserView(View):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
         cleaned_user_info = clean(user_info, ["first_name", "last_name", "email",])
-        roles = [role["id"] for role in user_info["roles"]]
+        role_ids = [role["id"] for role in user_info["roles"]]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
         except ObjectDoesNotExist:
@@ -93,12 +93,13 @@ class UserView(View):
 
         try:
             membership = Membership.objects.create(team = team, user = user)
-            membership.roles.add(*roles)
+            membership.roles.add(*role_ids)
             membership.save()
         except IntegrityError:
             JsonResponse({"error": "User already a part of team"}, status=400)
-
-        return JsonResponse({"user": model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])})
+        user_dict = model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])
+        user_dict["roles"] = user_info["roles"]
+        return JsonResponse({"user": user_dict})
 
     def delete(self, request, *args, **kwargs):
         user_id = int(self.kwargs["user_id"])
