@@ -14,8 +14,8 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 	        }
 	      }
 	    });
-		modalInstance.result.then(function (user_info) {
-		    teamService.save(user_info).then(function(resp){
+		modalInstance.result.then(function (team_info) {
+		    teamService.save(team_info).then(function(resp){
 		      	if ("error" in resp) {
 		      		alert("error while saving")
 		      		return

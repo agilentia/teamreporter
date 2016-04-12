@@ -16,16 +16,16 @@ app.factory("teamService", ["Team", function(Team){
 			return teams;
 		},
 
-		save: function(team_id, user_info) {
-			console.log(user_info)
-			save = Team.save({team_id: team_id}, user_info, function(data){
+		save: function(team_info) {
+			console.log(team_info)
+			save = Team.save(team_info, function(data){
 				teams.push(data.team);
 			});
 			return save.$promise;
 		},
 
 		delete: function(team_id) {
-			User.delete({team_id: team_id}, function(data){
+			Team.delete({team_id: team_id}, function(data){
 				for (var i = 0; i < teams.length; i++ ) {
 					if (teams[i].id == data.team.id){
 						teams.splice(i, 1);
