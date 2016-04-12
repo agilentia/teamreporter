@@ -69,7 +69,7 @@ class Question(models.Model):
 
 
 class Survey(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     report = models.ForeignKey(Report)
     user = models.ForeignKey(User)
     completed = models.DateTimeField(null=True, blank=True)
