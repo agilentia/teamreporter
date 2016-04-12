@@ -24,7 +24,6 @@ app.config(function($stateProvider, $urlRouterProvider) {
 		resolve: {
 			teamService: 'teamService',
 			team: function(teamService) {
-				console.log("HERE")
 				return teamService.init();
 			}
 		}

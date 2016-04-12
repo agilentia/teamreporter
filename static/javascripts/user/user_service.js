@@ -14,9 +14,7 @@ app.factory("userService", ["User", function(User){
 		},
 
 		save: function(team_id, user_info) {
-			console.log(user_info)
 			save = User.save({team_id: team_id}, user_info, function(data){
-				console.log(data.user);
 				users.push(data.user);
 			});
 			return save.$promise;

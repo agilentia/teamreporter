@@ -4,7 +4,6 @@ app.factory("teamService", ["Team", function(Team){
 	var service = {
 		init: function() {
 			query = Team.get(function(data){
-				console.log(data);
 				teams = data.teams;
 			}, function(response){
 				// deal with exception
@@ -17,7 +16,6 @@ app.factory("teamService", ["Team", function(Team){
 		},
 
 		save: function(team_info) {
-			console.log(team_info)
 			save = Team.save(team_info, function(data){
 				teams.push(data.team);
 			});
