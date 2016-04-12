@@ -4,7 +4,7 @@
 {% block title %}{% blocktrans %}Boomerang survey{% endblocktrans %}{% endblock %}
 
 {% block body %}
-{% with user.first_name as name %}
+{% with survey.user.first_name as name %}
 <h2>{% blocktrans %}Hello <b>{{ name }}</b>!{% endblocktrans %}</h2>
 {% endwith %}
 <p>{% blocktrans %}Please find a moment to answer these questions:{% endblocktrans %}</h2>

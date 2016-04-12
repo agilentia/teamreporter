@@ -20,7 +20,7 @@ class MembershipAdmin(admin.ModelAdmin):
 
 
 class SurveyAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('report', 'user', 'date')}
+    pass
 
 
 class AnswerAdmin(admin.ModelAdmin):

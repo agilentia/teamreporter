@@ -8,12 +8,15 @@ from teamreporter.models import Survey, Report
 from teamreporter.utils import send_mass_html_mail
 from teamreporterapp.celery import app
 
+logger = logging.getLogger(__name__)
+
 
 @app.task
 def send_survey(survey_pk):
     survey = Survey.objects.get(pk=survey_pk)
 
-    context = Context({'user': survey.user, 'questions': survey.report.question_set.filter(active=True)})
+    context = Context({'user': survey.user, 'survey': survey,
+                       'questions': survey.report.question_set.filter(active=True)})  # TODO: use manager instead
     subject = render_to_string('email/survey_subject.txt', context)
 
     text = get_template('email/survey.txt')
@@ -21,7 +24,7 @@ def send_survey(survey_pk):
     text_content = text.render(context)
     html_content = html.render(context)
 
-    user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
+    survey.user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
 
 
 @app.task
@@ -29,11 +32,17 @@ def generate_survey(user_pk, report_pk):
     user = User.objects.get(pk=user_pk)
     report = Report.objects.get(pk=report_pk)
 
+    if user not in report.team.users:
+        logger.warning('Generate survey executed with user from outside team!')
+        return False
+
     survey, created = Survey.objects.get_or_create(user=user, report=report, date=now().date())
 
     if created:
         # prepare email and send it to user
+        logger.info('Sending survey to team member')
         send_survey.delay(survey.pk)
+        return True
 
 
 @app.task

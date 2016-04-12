@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import signals
 
 from recurrence.fields import RecurrenceField
+import uuid
 
 
 def add_default_report(sender, instance, **kwargs):
@@ -61,7 +62,7 @@ class Question(models.Model):
 
 
 class Survey(models.Model):
-    slug = models.SlugField()
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     report = models.ForeignKey(Report)
     user = models.ForeignKey(User)
     completed = models.DateTimeField(null=True, blank=True)
@@ -75,5 +76,6 @@ class Answer(models.Model):
 
     class Meta:
         unique_together = ('survey', 'question')
+
 
 signals.post_save.connect(add_default_report, sender=Team)

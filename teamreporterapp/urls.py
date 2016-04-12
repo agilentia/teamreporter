@@ -31,7 +31,9 @@ urlpatterns = [
     url(r'^team/(?P<team_id>\d+)/users/(?P<user_id>\d+)/?$', UserView.as_view(), name="user_detail_view"),
     # a bit hacky, but can make separate resource later for questions
     url(r'^role/$', RoleView.as_view(), name="role_view"),
+    url(r'^survey/(?P<uuid>[^/]+)/$', SurveyView.as_view(), name='survey_view'),
     url(r'^debug/report/(?P<report>\d+)/$', SummaryDebugPreview.as_view()),
-    url(r'^debug/survey/(?P<survey>\d+)/$', SurveyDebugPreview.as_view()),
+    url(r'^debug/survey/(?P<survey>[^/]+)/$', SurveyDebugPreview.as_view()),
+    url(r'^thankyou/$', ThankYouView.as_view()),
     url('^$', IndexView.as_view(), name='index'),
 ]

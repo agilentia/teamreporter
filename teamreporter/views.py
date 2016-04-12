@@ -184,5 +184,6 @@ class SurveyDebugPreview(TemplateView):
         context = super(SurveyDebugPreview, self).get_context_data(**kwargs)
         survey = Survey.objects.get(pk=kwargs['survey'])
         context['user'] = survey.user
+        context['survey'] = survey
         context['questions'] = survey.report.question_set.filter(active=True)
         return context
