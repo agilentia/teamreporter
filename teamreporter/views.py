@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
 from .forms import SurveyForm
-from .models import Team, User, Question, Role, Membership, Report, Survey, Answer
+from .models import Team, User, Question, Role, Membership, Report, Survey, Answer, DailyReport
 from .decorators import survey_completed
 
 import json
@@ -203,10 +203,11 @@ class SummaryDebugPreview(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
-        context['user'] = self.request.user
-        context['user_sent_report'] = Survey.objects.get(report=kwargs['report'],
-                                                         user=self.request.user).completed is not None
-        context['surveys'] = Survey.objects.filter(report=kwargs['report'], date=now().date())
+        daily = get_object_or_404(DailyReport, pk=kwargs['report'])
+        context.update({'user': self.request.user,
+                        'surveys': daily.survey_set.all(),
+                        'user_sent_report': daily.survey_set.filter(user=self.request.user,
+                                                                    completed__isnull=False).exists()})
         return context
 
 
