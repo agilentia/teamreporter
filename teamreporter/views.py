@@ -18,18 +18,12 @@ import recurrence
 import datetime
 import json
 import dateutil.parser
-
+from .validators import team_schema, user_schema
+from cerberus import Validator
 
 def check_scope(request, team):
     if team.admin.email != request.user.email:
         raise Http404("Team doesn't exist")
-
-
-def validate_presence(d, keys):
-    for k in keys:
-        if k not in d:
-            return False
-    return True
 
 
 def clean(d, keys):
@@ -55,18 +49,16 @@ class TeamView(View):
     def post(self, request, *args, **kwargs):
         user = request.user
         team_info = json.loads(request.body.decode("utf-8"))
-
-        if not validate_presence(team_info, ["name", "days_of_week", "send_time", "summary_time"]):
-            return JsonResponse({"error": "Invalid Team JSON data"}, status=400)
-
+        validator = Validator(team_schema)
+        if not validator.validate(team_info):
+            return JsonResponse({"error": validator.errors})
         send_time = dateutil.parser.parse(team_info["send_time"]).replace(second=0, microsecond=0)
         summary_time = dateutil.parser.parse(team_info["summary_time"]).replace(second=0, microsecond=0)
         rule = recurrence.Rule(recurrence.WEEKLY, byday = team_info["days_of_week"])
         rec = recurrence.Recurrence(rrules = [rule])
 
-        cleaned_team_info = clean(team_info, ["name"])
         try:
-            team = Team.objects.create(admin=user, **cleaned_team_info)
+            team = Team.objects.create(admin=user, name=team_info["name"])
         except ValidationError:
             return JsonResponse({"error": "Team already exists with this name"},
                                 status=400)  # should also check error code to ensure its violating the unique together constraint (likely is)
@@ -99,15 +91,19 @@ class UserView(View):
         check_scope(request, team)
 
         user_info = json.loads(request.body.decode("utf-8"))
-        if not validate_presence(user_info, ["email", "roles"]):
-            return JsonResponse({"error": "Invalid User JSON data"}, status=400)
+        validator = Validator(user_schema)
+        if not validator.validate(user_info):
+            return JsonResponse({"error": validator.errors})
 
-        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email", ])
         role_ids = [role["id"] for role in user_info["roles"]]
         try:
-            user = User.objects.get(email=cleaned_user_info["email"])
+            user = User.objects.get(email=user_info["email"])
         except ObjectDoesNotExist:
-            user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
+            user = User.objects.create(username=user_info["email"], 
+                                       email=user_info["email"], 
+                                       first_name=user_info["first_name"],
+                                       last_name=user_info["last_name"],
+                                       )
 
         try:
             membership = Membership.objects.create(team=team, user=user)

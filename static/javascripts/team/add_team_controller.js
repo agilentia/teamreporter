@@ -31,6 +31,7 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 
 		    teamService.save(team_info).then(function(resp){
 		      	if ("error" in resp) {
+		      		console.log(resp);
 		      		alert("error while saving")
 		      		return
 		      	}
