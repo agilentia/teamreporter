@@ -13,7 +13,8 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 	          return [{name: "Name", value: "", type: "text", var_name: "name"},
 	          		  {name: "Days of Week", type: "checkbox", var_name: "days_of_week", options: 
 	          		  		[{"id": 0, name: "Monday"}, {id: 1, name: "Tuesday"}, {id: 2, name: "Wednesday"}, {id:3, name: "Thursday"}, {id: 4, name: "Friday"}]},
-	          		  {name: "Time of Day", type: "timepicker", var_name: "time_of_day"}];
+	          		  {name: "Survey Issue Time", type: "timepicker", var_name: "send_time"},
+	          		  {name: "Report Summary Time", type: "timepicker", var_name: "summary_time"}];
 	        }
 	      }
 	    });
