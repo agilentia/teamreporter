@@ -23,3 +23,7 @@ user_schema = {
     'roles': {'type': 'list', 'required': True, 'schema': {'type':'dict', 
                     'schema': {'id': {'type': ['integer', 'string'], 'required': True}, 'name': {'type': 'string', 'required': True} } } }
 }
+
+question_schema = {
+    'question': {"type": "string", "minlength": 1, 'required': True},
+}

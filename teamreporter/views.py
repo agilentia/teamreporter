@@ -18,7 +18,7 @@ import recurrence
 import datetime
 import json
 import dateutil.parser
-from .validators import team_schema, user_schema
+from .validators import team_schema, user_schema, question_schema
 from cerberus import Validator
 
 def check_scope(request, team):
@@ -141,9 +141,12 @@ class ReportView(View):
         team_id = int(self.kwargs["team_id"])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
-
         report_info = json.loads(request.body.decode("utf-8"))
-        validate_presence(report_info, ["question"])
+
+        validator = Validator(question_schema)
+        if not validator.validate(report_info):
+            return JsonResponse({"error": validator.errors})
+            
         question_string = report_info["question"]
         question = Question.objects.create(text=question_string, report=team.report_set.first())
 

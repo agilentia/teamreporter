@@ -17,7 +17,8 @@ app.factory("teamService", ["Team", function(Team){
 
 		save: function(team_info) {
 			save = Team.save(team_info, function(data){
-				teams.push(data.team);
+				if ("team" in data)
+					teams.push(data.team);
 			});
 			return save.$promise;
 		},
