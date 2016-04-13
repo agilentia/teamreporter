@@ -1,6 +1,5 @@
 from django import forms
 
-
 class SurveyForm(forms.Form):
     question_prefix = 'question'
 

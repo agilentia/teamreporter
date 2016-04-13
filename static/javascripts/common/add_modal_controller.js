@@ -5,6 +5,10 @@ app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "
 		$uibModalInstance.dismiss('cancel');
 	};
 
+  $scope.clicked = function () {
+    console.log($scope.fields[1].value);
+  }
+
   	$scope.ok = function () {
   		var result = {};
   		for (var i = 0; i < $scope.fields.length; i++) {
