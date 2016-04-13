@@ -1,0 +1,28 @@
+{% extends "email/base.html" %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Boomerang summary report{% endblocktrans %}{% endblock %}
+
+{% block body %}
+{% with user.first_name as name %}
+<h2>{% blocktrans %}Hello <b>{{ name }}</b>!{% endblocktrans %}</h2>
+{% endwith %}
+{% if user_sent_report %}
+<p>{% blocktrans %}Thank you for your participating in this survey!{% endblocktrans %}</h2>
+{% else %}
+<p>{% blocktrans %}Unfortunately we didn't get your response. Hope we'll meet next time. {% endblocktrans %}</p>
+{% endif %}
+<p>{% blocktrans %}Below you'll find summary report from the rest of your team:{% endblocktrans %}</p>
+<ul>
+    {% for survey in surveys %}
+        <h3>{{survey.user.get_full_name}} - {{survey.user.email}}</h3>
+        {% for answer in survey.answer_set.all %}
+            <p><b>{{answer.question.text}}</b> - {{answer.text}}</p>
+        {% endfor %}
+    {% endfor %}
+</ul>
+<p>&nbsp;</p>
+<p>{% trans "Have a productive day," %}</p>
+<p><i>{% trans "Boomerang team" %}</i></p>
+{% endblock %}
+{% block ctabutton %}{% endblock %}

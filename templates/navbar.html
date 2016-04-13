@@ -1,0 +1,16 @@
+<nav class="navbar navbar-default">
+    <i class="fa fa-spinner fa-spin spinner" style="font-size:48px" ng-show="io"></i>
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'index' %}">Boomerang</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="{% url 'index' %}">Home</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'auth_logout' %}">Logout</a></li>
+                {% endif %}
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div><!--/.container-fluid -->
+</nav>

@@ -1,0 +1,41 @@
+{% extends "home.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Thank you!{% endblocktrans %}{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="jumbotron">
+        <div class="text-center">
+            <h2>{% trans "Thank you for your input!" %}</h2>
+            <img id="giphyme" width=350 src="{% static 'img/loading.gif' %}" alt="">
+            <p>{% trans "have a productive day!" %}</p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    //    small piece of make your day happier code
+    document.addEventListener('DOMContentLoaded', function () {
+        var q = "thank you"; // search query
+
+        var request = new XMLHttpRequest;
+        request.open('GET', '//api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=' + q, true);
+
+        request.onload = function () {
+            if (request.status >= 200 && request.status < 400) {
+                var data = JSON.parse(request.responseText).data.image_url;
+                document.getElementById("giphyme").src = data;
+            } else {
+                console.log('reached giphy, but API returned an error');
+            }
+        };
+
+        request.onerror = function () {
+            document.getElementById('giphyme').src = 'https://media.giphy.com/media/U8bDgsXcnIEFy/giphy.gif';
+            console.log('connection error');
+        };
+
+        request.send();
+    });
+</script>
+{% endblock %}}

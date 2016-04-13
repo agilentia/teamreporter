@@ -1,19 +1,27 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
+from django.views.generic import FormView
 from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
-from .models import Team, User, Question, Role, Membership
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+
+from .forms import SurveyForm
+from .models import Team, User, Question, Role, Membership, Report, Survey, Answer
+from .decorators import survey_completed
+
 import json
 
 
 def check_scope(request, team):
     if team.admin.email != request.user.email:
         raise Http404("Team doesn't exist")
+
 
 def validate_presence(d, keys):
     for k in keys:
@@ -69,7 +77,7 @@ class UserView(View):
         memberships = team.membership_set.all()
         users = []
         for m in memberships:  # TODO: make this little loop a method call on the object manager
-            user_info = model_to_dict(m.user, fields = ["email", "first_name", "last_name","id"])
+            user_info = model_to_dict(m.user, fields=["email", "first_name", "last_name", "id"])
             user_info["roles"] = [model_to_dict(r) for r in m.roles.all()]
             users.append(user_info)
 
@@ -84,7 +92,7 @@ class UserView(View):
         if not validate_presence(user_info, ["email", "roles"]):
             return JsonResponse({"error": "Invalid User JSON data"}, status=400)
 
-        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email",])
+        cleaned_user_info = clean(user_info, ["first_name", "last_name", "email", ])
         role_ids = [role["id"] for role in user_info["roles"]]
         try:
             user = User.objects.get(email=cleaned_user_info["email"])
@@ -92,7 +100,7 @@ class UserView(View):
             user = User.objects.create(username=cleaned_user_info["email"], **cleaned_user_info)
 
         try:
-            membership = Membership.objects.create(team = team, user = user)
+            membership = Membership.objects.create(team=team, user=user)
             membership.roles.add(*role_ids)
             membership.save()
         except IntegrityError:
@@ -107,9 +115,10 @@ class UserView(View):
         user = get_object_or_404(User, pk=user_id)
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
-        Membership.objects.filter(user = user, team = team).delete()
+        Membership.objects.filter(user=user, team=team).delete()
 
-        return JsonResponse({"user": model_to_dict(user, fields = ("email", "id"))})
+        return JsonResponse({"user": model_to_dict(user, fields=("email", "id"))})
+
 
 @method_decorator(login_required, name='dispatch')
 class ReportView(View):
@@ -118,7 +127,7 @@ class ReportView(View):
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
         report = team.report_set.first()
-        questions = report.question_set.filter(active = True)
+        questions = report.question_set.filter(active=True)
 
         return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
 
@@ -143,15 +152,71 @@ class ReportView(View):
         question.active = False
         question.save()
 
-        return JsonResponse({"question": model_to_dict(question, fields = ("text", "id"))})
+        return JsonResponse({"question": model_to_dict(question, fields=("text", "id"))})
 
 
-@method_decorator(login_required, name='dispatch')
-class SurveyView(View):
-    def get(self, request, *args, **kwargs):
-        pass
+@method_decorator(survey_completed, 'dispatch')
+class SurveyView(FormView):
+    template_name = 'survey.html'
+    form_class = SurveyForm
+    success_url = '/thankyou/'
+
+    @property
+    def survey(self):
+        return get_object_or_404(Survey, pk=self.kwargs['uuid'])
+
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form. Include ``questions`` for initiating survey.
+        """
+        kwargs = super(SurveyView, self).get_form_kwargs()
+        kwargs['questions'] = self.survey.report.question_set.filter(active=True)
+        return kwargs
+
+    def form_valid(self, form):
+        survey = self.survey
+        for question_pk, response in form.extract_answers():
+            question = Question.objects.get(pk=question_pk)
+            answer, created = Answer.objects.get_or_create(question=question, survey=survey)
+            answer.text = response
+            answer.save()
+
+        survey.completed = now()
+        survey.save()
+
+        return super(SurveyView, self).form_valid(form)
+
+
+class ThankYouView(TemplateView):
+    template_name = 'thankyou.html'
+
 
 @method_decorator(login_required, name='dispatch')
 class RoleView(View):
     def get(self, request, *args, **kwargs):
         return JsonResponse({"roles": [model_to_dict(r, fields=["id", "name"]) for r in Role.objects.all()]})
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class SummaryDebugPreview(TemplateView):
+    template_name = 'email/summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
+        context['user'] = self.request.user
+        context['user_sent_report'] = Survey.objects.get(report=kwargs['report'],
+                                                         user=self.request.user).completed is not None
+        context['surveys'] = Survey.objects.filter(report=kwargs['report'], date=now().date())
+        return context
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class SurveyDebugPreview(TemplateView):
+    template_name = 'email/survey.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SurveyDebugPreview, self).get_context_data(**kwargs)
+        survey = Survey.objects.get(pk=kwargs['survey'])
+        context['survey'] = survey
+        context['questions'] = survey.report.question_set.filter(active=True)
+        return context

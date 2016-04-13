@@ -1,0 +1,34 @@
+{% extends "email/base.html" %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}Boomerang survey{% endblocktrans %}{% endblock %}
+
+{% block body %}
+{% with survey.user.first_name as name %}
+<h2>{% blocktrans %}Hello <b>{{ name }}</b>!{% endblocktrans %}</h2>
+{% endwith %}
+<p>{% blocktrans %}Please find a moment to answer these questions:{% endblocktrans %}</h2>
+
+<ul>
+    {% for question in questions %}
+    <li>{{ question.text }}</li>
+    {% endfor %}
+</ul>
+
+<p>{% trans "Have a productive day," %}</p>
+<p><i>{% trans "Boomerang team" %}</i></p>
+{% endblock %}
+
+{% block ctabutton %}
+<table class="btn-primary" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td>
+            <a href="{{SITE_URL}}{% url 'survey_view' survey.pk %}">{% trans "Complete survey" %}</a>
+        </td>
+    </tr>
+</table>
+{% endblock %}
+
+{% comment %}
+TODO: include link to answer the questions
+{% endcomment %}

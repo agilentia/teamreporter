@@ -3,16 +3,15 @@
 Allows creation and collection of reports to teams by email
 
 ### Version
-0.0.1
+0.0.2
 ### Installation
 
-Note: This has only been tested on Ubuntu 14.04
+Note: This has been tested on Ubuntu 14.04 and OS X 10.11.3
 
 ```sh
 $ git clone git@github.com:agilentia/teamreporter.git
 $ cd teamreporter
-$ virtualenv ~/.virtualenvs/sher #uses python3.4
-$ source ~/.virtualenvs/sher/bin/activate
+$ mkvirtualenv -p python3 boomerang
 $ pip install -r requirements.txt
 $ bower install #(depends on your system, but this requires node.js and npm)
 $ python manage.py migrate
@@ -26,8 +25,8 @@ $ Go to http://localhost:5000
 * Add period options for Team reports
 * Start writing Angular unit/integration tests
 * Write more Django unit tests 
-* Add actual background job that sends, receives, parses, and saves answers from each team member
 * Start adding comments
+* Take roles into account for user / report management
 
 ### Improvements
 * Some angular code can be refactored into common packages.  In progress

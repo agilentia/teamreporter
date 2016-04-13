@@ -8,15 +8,16 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-
-import os
+from celery.schedules import crontab
 from registration_defaults.settings import *
 import dj_database_url
+
+BROKER_URL = os.environ.get('REDIS_URL', 'redis://')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -35,7 +36,9 @@ else:
 SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
+
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:5000/')
 
 # Must not require slash appending for ngResource to work correctly
 APPEND_SLASH = False
@@ -54,7 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'teamreporter',
-    "registration_defaults",
+    'recurrence',
+    'registration_defaults',
     'compressor',
     'registration',
 ]
@@ -75,7 +79,7 @@ ROOT_URLCONF = 'teamreporterapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates'),REGISTRATION_TEMPLATE_DIR],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), REGISTRATION_TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,7 +93,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'teamreporterapp.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -117,6 +120,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Celery beat periodic task schedule
+CELERYBEAT_SCHEDULE = {
+    # Checks every 15 minutes if survey should be sent to it's team members
+    'issue-surveys': {
+        'task': 'teamreporter.tasks.issue_surveys',
+        'schedule': crontab(minute='*/15'),
+    },
+    # Checks every 15 minutes if summary should be generated
+    'issue-summaries': {
+        'task': 'teamreporter.tasks.issue_summaries',
+        'schedule': crontab(minute='*/15')
+    }
+}
+
+DEFAULT_FROM_EMAIL = 'email@example.com'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -151,9 +169,25 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Extra places for collectstatic to find static files.
 STATICFILES_DIRS = [
-    os.path.join(PROJECT_ROOT, '../static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+        }
+    }
+}
