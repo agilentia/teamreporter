@@ -1,15 +1,10 @@
 from datetime import date, datetime, time
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import signals
 from django.utils.timezone import now
 
 from recurrence.fields import RecurrenceField
 import uuid
-
-
-def add_default_report(sender, instance, **kwargs):
-    Report.objects.get_or_create(team=instance)  # this inefficiency can be removed later if there are multiple reports
 
 
 class Team(models.Model):
@@ -127,5 +122,3 @@ class Answer(models.Model):
 
     class Meta:
         unique_together = ('survey', 'question')
-
-# signals.post_save.connect(add_default_report, sender=Team)
