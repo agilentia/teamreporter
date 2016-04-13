@@ -11,7 +11,7 @@
                 </div>
                 <div ng-switch-when="checkbox">
                     <div class="btn-group">
-                        <label ng-repeat="opt in field.options" ng-model="field.value[opt.id]" class="btn btn-primary" uib-btn-checkbox>{{opt.name}}</label>
+                        <label ng-click="clicked()" ng-repeat="opt in field.options" ng-model="field.value[opt.id]" class="btn btn-primary" uib-btn-checkbox>{{opt.name}}</label>
                     </div>
                 </div>
                 <div ng-switch-when="timepicker">

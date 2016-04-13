@@ -6,7 +6,7 @@ app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "
 	};
 
   $scope.clicked = function () {
-    console.log($scope.fields[1].value);
+    console.log($scope.fields[2].value);
   }
 
   	$scope.ok = function () {
