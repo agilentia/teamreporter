@@ -1,9 +1,21 @@
 app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "title", function($scope, $uibModalInstance, fields, title) {
-	$scope.fields = fields;
+	var cur_date = new Date();
+
+  for (var i = 0; i < fields.length; i++) {
+    if (fields[i].type == "timepicker") {
+      fields[i].value = cur_date;
+    }
+  }
+
+  $scope.fields = fields;
 	$scope.title = title;
 	$scope.cancel = function () {
 		$uibModalInstance.dismiss('cancel');
 	};
+
+  $scope.time_change = function (val){
+    console.log(val);
+  }
 
   	$scope.ok = function () {
   		var result = {};
