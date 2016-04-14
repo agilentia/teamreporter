@@ -56,13 +56,13 @@ class TeamView(View):
         user = request.user
         team_info = json.loads(request.body.decode("utf-8"))
 
-        if not validate_presence(team_info, ["name", "days_of_week", "send_time", "summary_time"]):
+        if not validate_presence(team_info, ["name", "days_of_week", "survey_send_time", "summary_send_time"]):
             return JsonResponse({"error": "Invalid Team JSON data"}, status=400)
 
-        send_time = dateutil.parser.parse(team_info["send_time"]).replace(second=0, microsecond=0)
-        summary_time = dateutil.parser.parse(team_info["summary_time"]).replace(second=0, microsecond=0)
-        rule = recurrence.Rule(recurrence.WEEKLY, byday = team_info["days_of_week"])
-        rec = recurrence.Recurrence(rrules = [rule])
+        survey_send_time = dateutil.parser.parse(team_info["survey_send_time"]).replace(second=0, microsecond=0)
+        summary_send_time = dateutil.parser.parse(team_info["summary_send_time"]).replace(second=0, microsecond=0)
+        rule = recurrence.Rule(recurrence.WEEKLY, byday=team_info["days_of_week"])
+        rec = recurrence.Recurrence(rrules=[rule])
 
         cleaned_team_info = clean(team_info, ["name"])
         try:
@@ -71,7 +71,8 @@ class TeamView(View):
             return JsonResponse({"error": "Team already exists with this name"},
                                 status=400)  # should also check error code to ensure its violating the unique together constraint (likely is)
 
-        Report.objects.create(team=team, recurrences=rec, send_time=send_time, summary_time=summary_time)
+        Report.objects.create(team=team, recurrences=rec, survey_send_time=survey_send_time,
+                              summary_send_time=summary_send_time)
         return JsonResponse({"team": model_to_dict(team)})
 
     def delete(self, request, *args, **kwargs):
