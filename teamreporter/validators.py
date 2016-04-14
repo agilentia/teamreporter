@@ -1,5 +1,10 @@
 import dateutil.parser
 
+def create_update_schema(schema):
+    update_schema = {}
+    for k, v in schema.items():
+        if "required "
+
 def validate_iso_datetime(field, value, error):
     try:
         dateutil.parser.parse(value)
@@ -11,6 +16,12 @@ team_schema = {
     "days_of_week": {"type": "list", "schema": {'type': 'integer'}, 'required': True},
     "send_time": {"validator": validate_iso_datetime, 'required': True},
     "summary_time": {"validator": validate_iso_datetime, 'required': True},
+}
+
+team_update_schema = {
+    "days_of_week": {"type": "list", "schema": {'type': 'integer'}},
+    "send_time": {"validator": validate_iso_datetime},
+    "summary_time": {"validator": validate_iso_datetime},
 }
 
 user_schema = {

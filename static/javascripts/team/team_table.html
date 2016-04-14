@@ -8,7 +8,7 @@
 		</thead>
 		<tbody>
 		<tr ng-repeat="team in teams">
-			<td>{{team.name}}</td>
+			<td><a >{{team.name}}</a></td>
 			<td><a ui-sref="user({team_id: team.id})">View</a> </td>
 			<td><a ui-sref="report({team_id: team.id})">View</a> </td>
 			<td><button ng-click="teamService.delete(team_id)" class = "btn btn-sm btn-danger">Delete</button></td>

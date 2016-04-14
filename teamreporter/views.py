@@ -18,7 +18,7 @@ import recurrence
 import datetime
 import json
 import dateutil.parser
-from .validators import team_schema, user_schema, question_schema
+from .validators import team_schema, team_update_schema, user_schema, question_schema
 from cerberus import Validator
 
 def check_scope(request, team):
@@ -67,9 +67,38 @@ class TeamView(View):
                               summary_send_time=summary_send_time)
         return JsonResponse({"team": model_to_dict(team)})
 
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        team_info = json.loads(request.body.decode("utf-8"))
+        
+        validator = Validator(team_schema)
+        if not validator.validate(team_info):
+            return JsonResponse({"error": validator.errors})
+
+        try:
+            team = Team.objects.get(id=int(self.kwargs["team_id"]))
+        except ObjectDoesNotExist:
+            return JsonResponse({"error": ["Team ID": "Team not found for ID in request"]})
+        
+        check_scope(request, team)
+
+        report = team.report_set.first() 
+        updates = {}
+        if "send_time" in team_info:
+            report.survey_send_time = dateutil.parser.parse(team_info["send_time"]).replace(second=0, microsecond=0)
+        if "summary_time" in team_info:
+            report.summary_send_time = dateutil.parser.parse(team_info["summary_time"]).replace(second=0, microsecond=0)
+        if "days_of_week" in team_info:
+            rule = recurrence.Rule(recurrence.WEEKLY, byday = team_info["days_of_week"])
+            rec = recurrence.Recurrence(rrules = [rule])
+            report.recurrences = rec
+
+        report.save()
+
+        return JsonResponse({"team": model_to_dict(team)})
+
     def delete(self, request, *args, **kwargs):
         pass
-
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
