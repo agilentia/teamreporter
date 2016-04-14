@@ -14,8 +14,10 @@ from django.utils.decorators import method_decorator
 from .forms import SurveyForm
 from .models import Team, User, Question, Role, Membership, Report, Survey, Answer, DailyReport
 from .decorators import survey_completed
-
+import recurrence
+import datetime
 import json
+import dateutil.parser
 
 
 def check_scope(request, team):
@@ -53,8 +55,15 @@ class TeamView(View):
     def post(self, request, *args, **kwargs):
         user = request.user
         team_info = json.loads(request.body.decode("utf-8"))
-        if not validate_presence(team_info, ["name"]):
+
+        if not validate_presence(team_info, ["name", "days_of_week", "send_time", "summary_time"]):
             return JsonResponse({"error": "Invalid Team JSON data"}, status=400)
+
+        send_time = dateutil.parser.parse(team_info["send_time"]).replace(second=0, microsecond=0)
+        summary_time = dateutil.parser.parse(team_info["summary_time"]).replace(second=0, microsecond=0)
+        rule = recurrence.Rule(recurrence.WEEKLY, byday = team_info["days_of_week"])
+        rec = recurrence.Recurrence(rrules = [rule])
+
         cleaned_team_info = clean(team_info, ["name"])
         try:
             team = Team.objects.create(admin=user, **cleaned_team_info)
@@ -62,6 +71,7 @@ class TeamView(View):
             return JsonResponse({"error": "Team already exists with this name"},
                                 status=400)  # should also check error code to ensure its violating the unique together constraint (likely is)
 
+        Report.objects.create(team=team, recurrences=rec, send_time=send_time, summary_time=summary_time)
         return JsonResponse({"team": model_to_dict(team)})
 
     def delete(self, request, *args, **kwargs):

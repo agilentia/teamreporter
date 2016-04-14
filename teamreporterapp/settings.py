@@ -36,7 +36,7 @@ else:
 SECRET_KEY = '0)9r^#c1v@ck5o10im=d3i4xiq*_e0uyqpfhwofa^a+^267oh&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', True)
 
 SITE_URL = os.environ.get('SITE_URL', 'http://localhost:5000/')
 
