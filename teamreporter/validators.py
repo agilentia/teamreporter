@@ -1,4 +1,3 @@
-import cerberus
 import dateutil.parser
 
 def validate_iso_datetime(field, value, error):
