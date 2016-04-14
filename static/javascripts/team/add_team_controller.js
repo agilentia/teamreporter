@@ -23,11 +23,11 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 			for (var week in team_info.days_of_week) {
 				if (!team_info.days_of_week.hasOwnProperty(week)) continue;
 
-				if (team_info.days_of_week[week]) {
-					days_of_week.push(parseInt(week))
-				} 
-			}
-			team_info.days_of_week = days_of_week;
+                if (team_info.days_of_week[week]) {
+                    days_of_week.push(parseInt(week))
+                }
+            }
+            team_info.days_of_week = days_of_week;
 
 		    teamService.save(team_info).then(function(resp){
 		      	if ("error" in resp) {
@@ -41,10 +41,9 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 		      		toastr.success("Team saved successfully!")
 		      	}
 
-		      	
-	      	});
-	    }, function () {
-	      //$log.info('Modal dismissed at: ' + new Date());
-	    });
-	}
+            });
+        }, function () {
+            //$log.info('Modal dismissed at: ' + new Date());
+        });
+    }
 }]);

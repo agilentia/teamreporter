@@ -125,12 +125,12 @@ CELERYBEAT_SCHEDULE = {
     # Checks every 15 minutes if survey should be sent to it's team members
     'issue-surveys': {
         'task': 'teamreporter.tasks.issue_surveys',
-        'schedule': crontab(minute='*/15'),
+        'schedule': crontab(minute='*'),
     },
     # Checks every 15 minutes if summary should be generated
     'issue-summaries': {
         'task': 'teamreporter.tasks.issue_summaries',
-        'schedule': crontab(minute='*/15')
+        'schedule': crontab(minute='*')
     }
 }
 
