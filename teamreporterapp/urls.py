@@ -23,8 +23,9 @@ from teamreporter.views import (
 )
 
 
-handler404 = GenericErrorPage.as_view(code=404, description=_('Page not found!'))
-handler500 = GenericErrorPage.as_view(code=500, description=_('Ops! Something went wrong. Come back later!'))
+handler404 = GenericErrorPage.as_view(code=404, description=_('Page not found!'), title=_('Boomerang lost'))
+handler500 = GenericErrorPage.as_view(code=500, description=_('Ops! Something went wrong. Come back later!'),
+                                      title=_('Boomerang broken'))
 
 
 urlpatterns = [
