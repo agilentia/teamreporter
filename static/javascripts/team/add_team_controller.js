@@ -1,5 +1,5 @@
 var app = angular.module("teamreporterapp")
-app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "teamService", function($scope, $stateParams, $uibModal, teamService) {
+app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "teamService", "toastr", function($scope, $stateParams, $uibModal, teamService, toastr) {
 	var self = this;
 	$scope.showAddModal = function(){
 	  var modalInstance = $uibModal.open({
@@ -31,9 +31,14 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 
 		    teamService.save(team_info).then(function(resp){
 		      	if ("error" in resp) {
-		      		console.log(resp);
-		      		alert("error while saving")
+		      		var error_string = ""
+		      		for (var key in resp.error) {
+		      			error_string += key + ": " + resp.error[key] + "\n"
+		      		}
+		      		toastr.error(error_string)
 		      		return
+		      	} else{
+		      		toastr.success("Team saved successfully!")
 		      	}
 
 		      	
