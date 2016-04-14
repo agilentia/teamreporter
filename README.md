@@ -48,7 +48,7 @@ Please use the [issue tracker](https://github.com/agilentia/teamreporter/issues)
 
 ## License
 
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) - see the [LICENSE.txt](https://github.com/agilentia/teamreporter/blob/master/license) file for details.
+[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) - see the [LICENSE](https://github.com/agilentia/teamreporter/blob/master/license) file for details.
 
 ## Thanks
 
