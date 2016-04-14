@@ -17,7 +17,9 @@ app.factory("reportService", ["Report", function(Report){
 
 		save: function(team_id, question_info) {
 			save = Report.save({team_id: team_id}, {question: question_info.question}, function(data){
-				questions.push(data.question);
+				if ("question" in data)
+					questions.push(data.question);
+
 			});
 			return save.$promise;
 		},
