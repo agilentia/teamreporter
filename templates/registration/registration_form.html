@@ -1,0 +1,19 @@
+{% extends "registration/registration_base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Register for an account" %}{% endblock %}
+{% block inner-content %}
+{% if form.errors %}
+<p>{% blocktrans %}Your username and password didn't match. Please try again.{% endblocktrans %}</p>
+{% endif %}
+
+<table>
+    <form method='post' action=''>{% csrf_token %}
+        {{ form }}
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit" class="btn btn-default">{% trans "Send activation email" %}</button>
+            </td>
+    </form>
+</table>
+{% endblock %}
