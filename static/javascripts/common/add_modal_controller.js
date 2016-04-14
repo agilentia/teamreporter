@@ -1,17 +1,19 @@
-app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "title", function($scope, $uibModalInstance, fields, title) {
-	var cur_date = new Date();
+app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "title", function ($scope, $uibModalInstance, fields, title) {
+    var cur_date = new Date();
 
-  for (var i = 0; i < fields.length; i++) {
-    if (fields[i].type == "timepicker") {
-      fields[i].value = cur_date;
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].type == "timepicker") {
+            fields[i].value = cur_date;
+        }
     }
-  }
+    $scope.hstep = 1;
+    $scope.mstep = 5;
 
-  $scope.fields = fields;
-	$scope.title = title;
-	$scope.cancel = function () {
-		$uibModalInstance.dismiss('cancel');
-	};
+    $scope.fields = fields;
+    $scope.title = title;
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
 
   	$scope.ok = function () {
   		var result = {};
@@ -20,4 +22,5 @@ app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "
   		}
     	$uibModalInstance.close(result);
   	};
+
 }]);
