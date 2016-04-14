@@ -13,10 +13,6 @@ app.controller('addModalController', ["$scope", "$uibModalInstance", "fields", "
 		$uibModalInstance.dismiss('cancel');
 	};
 
-  $scope.time_change = function (val){
-    console.log(val);
-  }
-
   	$scope.ok = function () {
   		var result = {};
   		for (var i = 0; i < $scope.fields.length; i++) {
