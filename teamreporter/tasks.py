@@ -6,7 +6,7 @@ from django.template import Context
 from django.template.loader import render_to_string, get_template
 from django.utils.timezone import now
 
-from teamreporter.models import Survey, Report
+from teamreporter.models import Survey, Report, DailyReport
 from teamreporter.utils import send_mass_html_mail
 from teamreporterapp.celery import app
 
@@ -31,15 +31,15 @@ def send_survey(survey_pk):
 
 
 @app.task
-def generate_survey(user_pk, report_pk):
+def generate_survey(user_pk, daily_pk):
     user = User.objects.get(pk=user_pk)
-    report = Report.objects.get(pk=report_pk)
+    daily = DailyReport.objects.get(pk=daily_pk)
 
-    if not report.team.users.filter(pk=user_pk).exists():
+    if not daily.report.team.users.filter(pk=user_pk).exists():
         logger.warning('Generate survey executed with user from outside team!')
         return False
 
-    survey, created = Survey.objects.get_or_create(user=user, report=report, date=now().date())
+    survey, created = Survey.objects.get_or_create(user=user, daily=daily)
 
     if created:
         # prepare email and send it to user
@@ -51,11 +51,12 @@ def generate_survey(user_pk, report_pk):
 @app.task
 def send_summary(report_pk):
     report = Report.objects.get(pk=report_pk)
+    daily = report.get_daily()
     messages = []
     for user in report.team.users.all():
         context = Context({'user': user,
-                           'surveys': Survey.objects.filter(report=report, date=now().date()),
-                           'user_sent_report': Survey.objects.get(report=report, user=user).completed is not None})
+                           'surveys': daily.survey_set.all(),
+                           'user_sent_report': daily.survey_set.filter(user=user, completed__isnull=False).exists()})
         context['SITE_URL'] = settings.SITE_URL
         subject = render_to_string('email/summary_subject.txt', context)
 
@@ -66,29 +67,26 @@ def send_summary(report_pk):
         messages.append([subject, text_content, html_content, settings.DEFAULT_FROM_EMAIL, [user.email]])
 
     send_mass_html_mail(messages)
-    report.summary_submitted = now()
-    report.save()
+    daily.summary_submitted = now()
+    daily.save()
 
 
 @app.task
 def issue_summaries():
     for report in Report.objects.all():
-        if report.occurs_today and report.summary_time <= now().time() and not report.summary_submitted:
+        if report.can_issue_summary():
             send_summary.delay(report.pk)
 
 
 @app.task
 def issue_surveys():
     """
-    This task is used as PeriodicTask to check hourly which team's report should be generated and sent to all users.
+    This task is used as PeriodicTask to check which team's report should be generated and sent to all users.
     """
 
     for report in Report.objects.all():
-        if report.occurs_today and report.send_time <= now().time():
-            # TODO: double check if there's no surveys generated for any team member given day
-            for user in report.team.users.all():
-                generate_survey.delay(user.pk, report.pk)
+        if report.can_issue_daily():
+            daily = report.get_daily()
 
-            # make sure to reset summary submission otherwise it will not be sent
-            report.summary_submitted = None
-            report.save()
+            for user in report.team.users.all():  # TODO: take into account user roles
+                generate_survey.delay(user.pk, daily.pk)

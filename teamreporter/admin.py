@@ -1,22 +1,24 @@
 from django.contrib import admin
 
-from .models import Team as Group, Question, Survey, Answer, Membership, Report
+from .models import Team, Question, Survey, Answer, Report, DailyReport
 
 
 class SurveyInline(admin.StackedInline):
     model = Survey
 
 
-class GroupAdmin(admin.ModelAdmin):
-    raw_id_fields = ('admin',)
-
-
 class QuestionAdmin(admin.ModelAdmin):
     pass
 
 
-class MembershipAdmin(admin.ModelAdmin):
-    pass
+class MembershipInline(admin.TabularInline):
+    model = Team.users.through
+    raw_id_fields = ('user',)
+
+
+class TeamAdmin(admin.ModelAdmin):
+    raw_id_fields = ('admin',)
+    inlines = (MembershipInline,)
 
 
 class SurveyAdmin(admin.ModelAdmin):
@@ -27,13 +29,17 @@ class AnswerAdmin(admin.ModelAdmin):
     pass
 
 
+class DailyReportInline(admin.TabularInline):
+    model = DailyReport
+    extra = 1
+
+
 class ReportAdmin(admin.ModelAdmin):
-    pass
+    inlines = (DailyReportInline,)
 
 
 admin.site.register(Report, ReportAdmin)
 admin.site.register(Survey, SurveyAdmin)
-admin.site.register(Membership, MembershipAdmin)
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Group, GroupAdmin)
+admin.site.register(Team, TeamAdmin)
 admin.site.register(Answer, AnswerAdmin)
