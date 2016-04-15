@@ -42,7 +42,10 @@ class TestTasks(TestCase):
 
     def test_issue_survey(self):
         """
-        test survey issuing
+        Test survey issuing
+        TODO: test multiple users
+
+        Returns the number of users a survey was sent to.  TODO: issue_survey can probably return something with more info in the future
         """
         result = issue_surveys.apply().get()
         self.assertTrue(result == 1)
@@ -53,3 +56,10 @@ class TestTasks(TestCase):
 
     def test_send_survey(self):
         pass
+
+    def test_send_summary(self):
+        pass
+
+    def test_issue_summaries(self):
+        pass
+
