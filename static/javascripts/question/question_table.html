@@ -7,7 +7,7 @@
 		<tbody>
 		<tr ng-repeat="question in questions">
 			<td>{{question.text}}</td>
-			<td><button ng-click="reportService.delete(team_id, question.id)" class = "btn btn-sm btn-danger">Delete</button></td>
+			<td><button ng-click="reportService.delete(question.id)" class = "btn btn-sm btn-danger">Delete</button></td>
 		</tr>
 		</tbody>
 	</table>

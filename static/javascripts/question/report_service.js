@@ -28,6 +28,7 @@ app.factory("reportService", ["Report", function(Report){
 		},
 
 		delete: function(question_id) {
+			console.log(self.team_id, question_id);
 			Report.delete({team_id: self.team_id, id: question_id}, function(data){
 				for (var i = 0; i < questions.length; i++ ) {
 					if (questions[i].id == data.question.id){

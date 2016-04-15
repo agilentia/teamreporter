@@ -186,7 +186,7 @@ class ReportView(View):
         report = team.report_set.first()
         questions = report.question_set.filter(active=True)
 
-        return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
+        return JsonResponse({"questions": [model_to_dict(q, fields=["id", "text"]) for q in questions]})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
@@ -200,8 +200,8 @@ class ReportView(View):
             
         question_string = report_info["question"]
         question = Question.objects.create(text=question_string, report=team.report_set.first())
-
-        return JsonResponse({"question": model_to_dict(question)})
+        print(question)
+        return JsonResponse({"question": model_to_dict(question, fields=("text", "id"))})
 
     def delete(self, request, *args, **kwargs):
         question_id = int(self.kwargs["question_id"])
