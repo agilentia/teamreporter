@@ -1,10 +1,5 @@
 import dateutil.parser
 
-def create_update_schema(schema):
-    update_schema = {}
-    for k, v in schema.items():
-        if "required "
-
 def validate_iso_datetime(field, value, error):
     try:
         dateutil.parser.parse(value)

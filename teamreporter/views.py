@@ -20,6 +20,11 @@ import json
 import dateutil.parser
 from .validators import team_schema, team_update_schema, user_schema, question_schema
 from cerberus import Validator
+import logging
+
+logger = logging.getLogger(__name__)
+
+DAYS = ["MO", "TU", "WE", "TH", "FR"]
 
 def check_scope(request, team):
     if team.admin.email != request.user.email:
@@ -42,9 +47,22 @@ class IndexView(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class TeamView(View):
+    def report_dict(self, team):
+        report = team.report_set.first()
+        days = [DAYS.index(day_string) for day_string in report.recurrences.rrules[0].byday]
+        report_dict = model_to_dict(report, exclude=['recurrences'])
+        report_dict["days_of_week"] = days
+
+        return report_dict
+
     def get(self, request, *args, **kwargs):
         user = request.user
-        return JsonResponse({"teams": [model_to_dict(t, exclude=["users"]) for t in Team.objects.filter(admin=user)]})
+        teams = []
+        for team in Team.objects.filter(admin=user):
+            team_dict = model_to_dict(team, exclude=["users"])
+            team_dict["report"] = self.report_dict(team)
+            teams.append(team_dict)
+        return JsonResponse({"teams": teams})
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -65,7 +83,9 @@ class TeamView(View):
 
         Report.objects.create(team=team, recurrences=rec, survey_send_time=survey_send_time,
                               summary_send_time=summary_send_time)
-        return JsonResponse({"team": model_to_dict(team)})
+        team_dict = model_to_dict(team, exclude=["users"])
+        team_dict["report"] = self.report_dict(team)
+        return JsonResponse({"team": team_dict})
 
     def put(self, request, *args, **kwargs):
         user = request.user
@@ -78,7 +98,7 @@ class TeamView(View):
         try:
             team = Team.objects.get(id=int(self.kwargs["team_id"]))
         except ObjectDoesNotExist:
-            return JsonResponse({"error": ["Team ID": "Team not found for ID in request"]})
+            return JsonResponse({"error": [{"Team ID": "Team not found for ID in request"}]})
         
         check_scope(request, team)
 
@@ -94,8 +114,9 @@ class TeamView(View):
             report.recurrences = rec
 
         report.save()
-
-        return JsonResponse({"team": model_to_dict(team)})
+        team_dict = model_to_dict(team, exclude=["users"])
+        team_dict["report"] = self.report_dict(team)
+        return JsonResponse({"team": team_dict})
 
     def delete(self, request, *args, **kwargs):
         pass
