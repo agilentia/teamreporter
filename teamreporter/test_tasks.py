@@ -28,7 +28,28 @@ class TestTasks(TestCase):
         self.report = Report.objects.create(team = self.team, recurrences = rec, survey_send_time=time(0, 0))
         self.report.can_issue_daily = MagicMock(return_value = True)
 
+    def test_generate_survey(self):
+        """
+        tests survey generation
+        Survey should be created if daily report exists/is valid and the user the survey is going to is actually on the team
+        """
+
+        result = generate_survey(self.user.id, self.report.get_daily()).get()  # should create a survey given a valid daily report and user on the team
+        self.assertTrue(result)
+
+        result = generate_survey(3, self.report.get_daily()).get()  # User is not on this team therefore survey shouldn't be created
+        self.assertFalse(result)
+
     def test_issue_survey(self):
-        """test survey issuing"""
+        """
+        test survey issuing
+        """
         result = issue_surveys.apply().get()
         self.assertTrue(result == 1)
+        self.membership.roles.filter(name="contributor").delete()
+        self.report.get_daily().delete()  # 'reset' daily report
+        result = issue_surveys.apply().get()
+        self.assertTrue(result == 0) #should be sent to contributors only only!!
+
+    def test_send_survey(self):
+        pass
