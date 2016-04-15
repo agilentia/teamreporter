@@ -34,13 +34,11 @@ def send_survey(survey_pk):
 def generate_survey(user_pk, daily_pk):
     user = User.objects.get(pk=user_pk)
     daily = DailyReport.objects.get(pk=daily_pk)
-
     if not daily.report.team.users.filter(pk=user_pk).exists():
         logger.warning('Generate survey executed with user from outside team!')
         return False
 
     survey, created = Survey.objects.get_or_create(user=user, daily=daily)
-
     if created:
         # prepare email and send it to user
         logger.info('Sending survey to team member')
@@ -83,10 +81,11 @@ def issue_surveys():
     """
     This task is used as PeriodicTask to check which team's report should be generated and sent to all users.
     """
-
+    survey_count = 0
     for report in Report.objects.all():
         if report.can_issue_daily():
             daily = report.get_daily()
-
             for user in report.team.users.all():  # TODO: take into account user roles
-                generate_survey.delay(user.pk, daily.pk)
+                if (generate_survey.delay(user.pk, daily.pk)):
+                    survey_count += 1
+    return survey_count
