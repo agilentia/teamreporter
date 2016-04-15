@@ -29,7 +29,6 @@ def send_survey(survey_pk):
 
     survey.user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
 
-
 @app.task
 def generate_survey(user_pk, daily_pk):
     user = User.objects.get(pk=user_pk)

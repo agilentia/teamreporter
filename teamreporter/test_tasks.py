@@ -34,11 +34,14 @@ class TestTasks(TestCase):
         Survey should be created if daily report exists/is valid and the user the survey is going to is actually on the team
         """
 
-        result = generate_survey(self.user.id, self.report.get_daily()).get()  # should create a survey given a valid daily report and user on the team
+        result = generate_survey.apply((self.user.id, self.report.get_daily().id)).get()  # should create a survey given a valid daily report and user on the team
         self.assertTrue(result)
 
-        result = generate_survey(3, self.report.get_daily()).get()  # User is not on this team therefore survey shouldn't be created
+        result = generate_survey.apply((self.admin.id, self.report.get_daily().id)).get()  # User is not on this team therefore survey shouldn't be created
         self.assertFalse(result)
+
+        #result = generate_survey.apply((3, self.report.get_daily().id)).get()  # User doesn't exist, not sure what we want here
+        #self.assertFalse(result)
 
     def test_issue_survey(self):
         """
