@@ -31,11 +31,6 @@ def check_scope(request, team):
         raise Http404("Team doesn't exist")
 
 
-def clean(d, keys):
-    """only allow whitelisted keys"""
-    return {k: v for k, v in d.items() if k in keys}
-
-
 @method_decorator(login_required, name='dispatch')
 class IndexView(TemplateView):
     template_name = 'index.html'
