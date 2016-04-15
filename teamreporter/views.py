@@ -119,7 +119,12 @@ class TeamView(View):
         return JsonResponse({"team": team_dict})
 
     def delete(self, request, *args, **kwargs):
-        pass
+        team_id = int(self.kwargs["team_id"])
+        team = get_object_or_404(Team, pk=team_id)
+        check_scope(request, team)
+        team.delete()
+        team_dict = {"id": team_id}
+        return JsonResponse({"team": team_dict})
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):

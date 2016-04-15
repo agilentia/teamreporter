@@ -37,7 +37,7 @@ app.factory("teamService", ["Team", function(Team){
 		},
 
 		delete: function(team_id) {
-			Team.delete({team_id: team_id}, function(data){
+			Team.delete({id: team_id}, function(data){
 				for (var i = 0; i < teams.length; i++ ) {
 					if (teams[i].id == data.team.id){
 						teams.splice(i, 1);
