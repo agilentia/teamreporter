@@ -10,6 +10,8 @@ from django.db import IntegrityError
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
+
 from cerberus import Validator
 from dateutil import parser
 
@@ -78,7 +80,7 @@ class TeamView(View):
         try:
             team = Team.objects.create(admin=user, name=team_info['name'])
         except ValidationError:
-            return JsonResponse({'error': _("Team already exists with this name")},
+            return JsonResponse({'error': {"name": _("team with this name already exists")}},
                                 status=400)  # should also check error code to ensure its violating the unique together constraint (likely is)
 
         Report.objects.create(team=team, recurrences=rec, survey_send_time=survey_send_time,
@@ -88,7 +90,6 @@ class TeamView(View):
         return JsonResponse({'team': team_dict})
 
     def put(self, request, *args, **kwargs):
-        user = request.user
         team_info = json.loads(request.body.decode('utf-8'))
 
         validator = Validator(team_schema)
@@ -114,6 +115,12 @@ class TeamView(View):
         if 'name' in team_info:
             team.name = team_info['name']
         report.save()
+
+        try:
+            team.save()
+        except IntegrityError:
+            return JsonResponse({'error': {"name": _("team with this name already exists")}})
+
         team_dict = model_to_dict(team, exclude=['users'])
         team_dict['report'] = self.report_dict(team)
         return JsonResponse({'team': team_dict})

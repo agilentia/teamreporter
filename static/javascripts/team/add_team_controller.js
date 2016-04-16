@@ -1,5 +1,5 @@
-var app = angular.module("teamreporterapp")
-app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "teamService", "toastr", function ($scope, $stateParams, $uibModal, teamService, toastr) {
+var app = angular.module("teamreporterapp");
+app.controller('addTeamController', ["$scope", "$stateParams", "$filter", "$uibModal", "teamService", "toastr", function ($scope, $stateParams, $filter, $uibModal, teamService, toastr) {
     $scope.$on('edit-team', function (event, team) {
         $scope.showAddModal(team)
     });
@@ -15,8 +15,8 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
 
                 fields: function () {
                     var name = "";
-                    var summary_send_time = new Date();
-                    var survey_send_time = new Date();
+                    var survey_send_time = new Date(Date.UTC(2015, 1, 1, 8, 0, 0));
+                    var summary_send_time = new Date(Date.UTC(2015, 1, 1, 20, 0, 0));
                     var days_of_week = {};
                     if (team !== undefined) {
                         name = team.name;
@@ -36,10 +36,10 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
                             value: days_of_week,
                             type: "checkbox",
                             var_name: "days_of_week",
-                            options: [{"id": 0, name: "Monday"}, {id: 1, name: "Tuesday"}, {
-                                id: 2,
-                                name: "Wednesday"
-                            }, {id: 3, name: "Thursday"}, {id: 4, name: "Friday"}]
+                            options: [
+                                {id: 0, name: "Monday"}, {id: 1, name: "Tuesday"},
+                                {id: 2, name: "Wednesday"}, {id: 3, name: "Thursday"},
+                                {id: 4, name: "Friday"}]
                         },
                         {name: "Survey Issue Time", value: survey_send_time, type: "timepicker", var_name: "send_time"},
                         {
@@ -60,6 +60,8 @@ app.controller('addTeamController', ["$scope", "$stateParams", "$uibModal", "tea
                     days_of_week.push(parseInt(week))
                 }
             }
+            team_info.summary_time = $filter('date')(team_info.summary_time, 'HH:mm');
+            team_info.send_time = $filter('date')(team_info.send_time, 'HH:mm');
             team_info.days_of_week = days_of_week;
             if (team === undefined) {
                 teamService.save(team_info).then($scope.callback);
