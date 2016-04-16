@@ -147,20 +147,17 @@ class UserView(View):
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
 
-        user_info = json.loads(request.body.decode("utf-8"))
+        user_info = json.loads(request.body.decode('utf-8'))
         validator = Validator(user_schema)
         if not validator.validate(user_info):
             return JsonResponse({'error': validator.errors})
 
         role_ids = [role['id'] for role in user_info['roles']]
-        try:
-            user = User.objects.get(email=user_info['email'])
-        except ObjectDoesNotExist:
-            user = User.objects.create(username=user_info['email'],
-                                       email=user_info['email'],
-                                       first_name=user_info['first_name'],
-                                       last_name=user_info['last_name'],
-                                       )
+        user, created = User.objects.get_or_create(email=user_info['email'])
+        if created:
+            user.first_name = user_info['first_name']
+            user.last_name = user_info['last_name']
+            user.save()
 
         try:
             membership = Membership.objects.create(team=team, user=user)
