@@ -13,7 +13,7 @@ class Team(models.Model):
     users = models.ManyToManyField(User, through='Membership')
 
     class Meta:
-        unique_together = (("admin", "name"),)
+        unique_together = ('admin', 'name')
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.admin)
@@ -33,7 +33,7 @@ class Membership(models.Model):
     roles = models.ManyToManyField(Role)
 
     class Meta:
-        unique_together = (("user", "team"),)
+        unique_together = ('user', 'team')
 
 
 class Report(models.Model):

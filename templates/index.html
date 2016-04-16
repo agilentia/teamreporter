@@ -1,8 +1,10 @@
 {% load staticfiles %}
+{% load i18n %}
 <!DOCTYPE html>
 <head>
     <link rel="stylesheet" type="text/css" href="{% static 'bower_components/bootstrap/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'bower_components/angular-toastr/dist/angular-toastr.min.css' %}">
+    <title>{% trans "Boomerang" %}</title>
 </head>
 
 <body ng-app="teamreporterapp">
