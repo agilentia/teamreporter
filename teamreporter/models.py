@@ -56,9 +56,10 @@ class Report(models.Model):
         return self.occurs_today and self.survey_send_time <= now().time() and not already_issued
 
     def can_issue_summary(self):
-        if self.dailyreport_set.filter(date=date.today()).exists():
-            return self.get_daily().summary_submitted is None
-        return False
+        return self.dailyreport_set.filter(date=date.today()).exists() and all([
+            self.occurs_today and self.summary_send_time <= now().time(),
+            self.get_daily().summary_submitted is None
+        ])
 
     def get_daily(self):
         """

@@ -4,6 +4,7 @@ from .models import Report, User, Team
 from datetime import time, datetime, timedelta
 import recurrence
 
+
 class TestReport(TestCase):
     def setUp(self):
         curr_day = datetime.today().weekday()
@@ -12,12 +13,12 @@ class TestReport(TestCase):
         all_days_but_today.remove(curr_day)
         rule = recurrence.Rule(recurrence.WEEKLY, byday=all_days)
         rule_not = recurrence.Rule(recurrence.WEEKLY, byday=all_days_but_today)
-        rec = recurrence.Recurrence(rrules = [rule])
-        rec_not = recurrence.Recurrence(rrules = [rule_not])
+        rec = recurrence.Recurrence(rrules=[rule])
+        rec_not = recurrence.Recurrence(rrules=[rule_not])
         self.admin = User.objects.create(email="celery@admin.com", username="celery_admin")
-        self.team = Team.objects.create(name = "celery_team_test", admin=self.admin)
-        self.report = Report.objects.create(team = self.team, recurrences = rec, survey_send_time=time.min)
-        self.report_not_today = Report.objects.create(team = self.team, recurrences = rec_not, survey_send_time=time.min)
+        self.team = Team.objects.create(name="celery_team_test", admin=self.admin)
+        self.report = Report.objects.create(team=self.team, recurrences=rec, survey_send_time=time.min)
+        self.report_not_today = Report.objects.create(team=self.team, recurrences=rec_not, survey_send_time=time.min)
 
     def test_occurs_today(self):
         """
@@ -34,12 +35,12 @@ class TestReport(TestCase):
         Decides if the daily report surveys can be sent out or not
         """
 
-        self.assertTrue(self.report.can_issue_daily())  #if daily report isn't issued, should be True
+        self.assertTrue(self.report.can_issue_daily())  # if daily report isn't issued, should be True
         self.report.survey_send_time = time.max
-        self.assertFalse(self.report.can_issue_daily()) #if hour is later than current time, don't issue
+        self.assertFalse(self.report.can_issue_daily())  # if hour is later than current time, don't issue
         self.report.survey_send_time = time.min
-        self.report.get_daily() #create daily report
-        self.assertFalse(self.report.can_issue_daily()) #assumed after daily report is created the daily report has already been sent
+        self.report.get_daily()  # create daily report
+        self.assertFalse(self.report.can_issue_daily())  # assumed after daily report is created the daily report has already been sent
 
     def test_get_daily(self):
         """
@@ -49,8 +50,9 @@ class TestReport(TestCase):
 
         first = self.report.get_daily()
         second = self.report.get_daily()
-        self.assertTrue(first == second) #ensures the same daily report was grabbed from the DB and a new one wasn't created
-        self.assertTrue(second) #just ensures its not returning None
+        self.assertTrue(
+            first == second)  # ensures the same daily report was grabbed from the DB and a new one wasn't created
+        self.assertTrue(second)  # just ensures its not returning None
 
     def test_can_issue_summary(self):
         """
@@ -60,9 +62,15 @@ class TestReport(TestCase):
 
         daily = self.report.get_daily()
         daily.delete()
-        self.assertFalse(self.report.can_issue_summary()) # daily report hasn't been created yet, summary should not be submitted
+        self.assertFalse(self.report.can_issue_summary(),
+                         "Daily report hasn't been created yet, summary should not be submitted")
         daily = self.report.get_daily()
-        self.assertTrue(self.report.can_issue_summary()) # daily report created but summary hasn't been submitted.  Should be allowed
+
+        self.report.summary_send_time = time.min
+        self.assertTrue(self.report.can_issue_summary(),
+                        "Daily report created but summary hasn't been submitted.  Should be allowed")
+
         daily.summary_submitted = datetime.now()
         daily.save()
-        self.assertFalse(self.report.can_issue_summary()) # daily report created and summary been submitted.  No more summaries should be allowed
+        self.assertFalse(self.report.can_issue_summary(),
+                         "Daily report created and summary been submitted.  No more summaries should be allowed")
