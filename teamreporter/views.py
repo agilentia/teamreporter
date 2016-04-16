@@ -161,7 +161,7 @@ class UserView(View):
             membership.roles.add(*role_ids)
             membership.save()
         except IntegrityError:
-            JsonResponse({"error": [{"Duplicate": "User already a part of team"}], status=400)
+            JsonResponse({"error": [{"Duplicate": "User already a part of team"}]}, status=400)
         user_dict = model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])
         user_dict["roles"] = user_info["roles"]
         return JsonResponse({"user": user_dict})
