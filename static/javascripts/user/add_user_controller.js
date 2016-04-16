@@ -25,9 +25,8 @@ app.controller('addUserController', ["$scope", "$stateParams", "$uibModal", "use
 		      	if ("error" in resp) {
 		      		var error_string = ""
 		      		for (var key in resp.error) {
-		      			error_string += key + ": " + resp.error[key] + "\n"
+		      			toastr.error(key + ": " + resp.error[key]);
 		      		}
-		      		toastr.error(error_string)
 		      	} else{
 		      		toastr.success("User saved successfully!")
 		      	}
