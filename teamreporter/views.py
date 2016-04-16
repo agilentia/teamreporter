@@ -18,17 +18,17 @@ import recurrence
 import datetime
 import json
 import dateutil.parser
-from .validators import team_schema, user_schema, question_schema
+from .validators import team_schema, team_update_schema, user_schema, question_schema
 from cerberus import Validator
+import logging
+
+logger = logging.getLogger(__name__)
+
+DAYS = ["MO", "TU", "WE", "TH", "FR"]
 
 def check_scope(request, team):
     if team.admin.email != request.user.email:
         raise Http404("Team doesn't exist")
-
-
-def clean(d, keys):
-    """only allow whitelisted keys"""
-    return {k: v for k, v in d.items() if k in keys}
 
 
 @method_decorator(login_required, name='dispatch')
@@ -42,9 +42,22 @@ class IndexView(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class TeamView(View):
+    def report_dict(self, team):
+        report = team.report_set.first()
+        days = [DAYS.index(day_string) for day_string in report.recurrences.rrules[0].byday]
+        report_dict = model_to_dict(report, exclude=['recurrences'])
+        report_dict["days_of_week"] = days
+
+        return report_dict
+
     def get(self, request, *args, **kwargs):
         user = request.user
-        return JsonResponse({"teams": [model_to_dict(t, exclude=["users"]) for t in Team.objects.filter(admin=user)]})
+        teams = []
+        for team in Team.objects.filter(admin=user):
+            team_dict = model_to_dict(team, exclude=["users"])
+            team_dict["report"] = self.report_dict(team)
+            teams.append(team_dict)
+        return JsonResponse({"teams": teams})
 
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -65,11 +78,48 @@ class TeamView(View):
 
         Report.objects.create(team=team, recurrences=rec, survey_send_time=survey_send_time,
                               summary_send_time=summary_send_time)
-        return JsonResponse({"team": model_to_dict(team)})
+        team_dict = model_to_dict(team, exclude=["users"])
+        team_dict["report"] = self.report_dict(team)
+        return JsonResponse({"team": team_dict})
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        team_info = json.loads(request.body.decode("utf-8"))
+        
+        validator = Validator(team_schema)
+        if not validator.validate(team_info):
+            return JsonResponse({"error": validator.errors})
+
+        try:
+            team = Team.objects.get(id=int(self.kwargs["team_id"]))
+        except ObjectDoesNotExist:
+            return JsonResponse({"error": [{"Team ID": "Team not found for ID in request"}]})
+        
+        check_scope(request, team)
+
+        report = team.report_set.first() 
+        updates = {}
+        if "send_time" in team_info:
+            report.survey_send_time = dateutil.parser.parse(team_info["send_time"]).replace(second=0, microsecond=0)
+        if "summary_time" in team_info:
+            report.summary_send_time = dateutil.parser.parse(team_info["summary_time"]).replace(second=0, microsecond=0)
+        if "days_of_week" in team_info:
+            rule = recurrence.Rule(recurrence.WEEKLY, byday = team_info["days_of_week"])
+            rec = recurrence.Recurrence(rrules = [rule])
+            report.recurrences = rec
+
+        report.save()
+        team_dict = model_to_dict(team, exclude=["users"])
+        team_dict["report"] = self.report_dict(team)
+        return JsonResponse({"team": team_dict})
 
     def delete(self, request, *args, **kwargs):
-        pass
-
+        team_id = int(self.kwargs["team_id"])
+        team = get_object_or_404(Team, pk=team_id)
+        check_scope(request, team)
+        team.delete()
+        team_dict = {"id": team_id}
+        return JsonResponse({"team": team_dict})
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
@@ -111,7 +161,7 @@ class UserView(View):
             membership.roles.add(*role_ids)
             membership.save()
         except IntegrityError:
-            JsonResponse({"error": "User already a part of team"}, status=400)
+            JsonResponse({"error": [{"Duplicate": "User already a part of team"}], status=400)
         user_dict = model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])
         user_dict["roles"] = user_info["roles"]
         return JsonResponse({"user": user_dict})
@@ -136,7 +186,7 @@ class ReportView(View):
         report = team.report_set.first()
         questions = report.question_set.filter(active=True)
 
-        return JsonResponse({"questions": [model_to_dict(q) for q in questions]})
+        return JsonResponse({"questions": [model_to_dict(q, fields=["id", "text"]) for q in questions]})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs["team_id"])
@@ -150,8 +200,8 @@ class ReportView(View):
             
         question_string = report_info["question"]
         question = Question.objects.create(text=question_string, report=team.report_set.first())
-
-        return JsonResponse({"question": model_to_dict(question)})
+        print(question)
+        return JsonResponse({"question": model_to_dict(question, fields=("text", "id"))})
 
     def delete(self, request, *args, **kwargs):
         question_id = int(self.kwargs["question_id"])

@@ -13,6 +13,12 @@ team_schema = {
     "summary_time": {"validator": validate_iso_datetime, 'required': True},
 }
 
+team_update_schema = {
+    "days_of_week": {"type": "list", "schema": {'type': 'integer'}},
+    "send_time": {"validator": validate_iso_datetime},
+    "summary_time": {"validator": validate_iso_datetime},
+}
+
 user_schema = {
     "first_name": {"type": "string", "minlength": 1, 'required': True},
     "last_name": {"type": "string", "minlength": 1, 'required': True},

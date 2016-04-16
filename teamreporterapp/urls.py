@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('registration.backends.hmac.urls')),
     url(r'^team/$', TeamView.as_view(), name="team_view"),
+    url(r'^team/(?P<team_id>\d+)/?$', TeamView.as_view(), name="team_detail_view"),
     url(r'^team/(?P<team_id>\d+)/report/questions/?$', ReportView.as_view(), name="report_view"),
     # treating this as a questions endpoint for now
     url(r'^team/(?P<team_id>\d+)/report/questions/(?P<question_id>\d+)/?$', ReportView.as_view(),
