@@ -15,10 +15,18 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 from teamreporter.views import (
     IndexView, UserView, TeamView, RoleView, SummaryDebugPreview,
-    SurveyDebugPreview, ReportView, SurveyView, ThankYouView
+    SurveyDebugPreview, ReportView, SurveyView, ThankYouView,
+    GenericErrorPage,
 )
+
+
+handler404 = GenericErrorPage.as_view(code=404, description=_('Page not found!'), title=_('Boomerang lost'))
+handler500 = GenericErrorPage.as_view(code=500, description=_('Ops! Something went wrong. Come back later!'),
+                                      title=_('Boomerang broken'))
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

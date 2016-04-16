@@ -247,6 +247,20 @@ class SurveyView(FormView):
         return super(SurveyView, self).form_valid(form)
 
 
+class GenericErrorPage(TemplateView):
+    template_name = "errors/generic.html"
+    code = None
+    description = None
+    title = None
+
+    def get_context_data(self, **kwargs):
+        context = super(GenericErrorPage, self).get_context_data(**kwargs)
+        context['code'] = self.code
+        context['description'] = self.description
+        context['title'] = self.title
+        return context
+
+
 class ThankYouView(TemplateView):
     template_name = 'thankyou.html'
 
