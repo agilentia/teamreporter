@@ -50,10 +50,21 @@ class Report(models.Model):
         """
         ``Report`` can issue ``DailyReport`` if and only if
             - occurs today ( hence ``get_daily`` ),
-            - daily hasn't been issued yet for day.
+            - daily hasn't been issued yet for day,
+            - members list is not empty,
+            - questions list is not empty.
+
+        :return: whether daily report can be generated
+        :rtype: bool
         """
         already_issued = self.dailyreport_set.filter(date=date.today()).exists()
-        return self.occurs_today and self.survey_send_time <= now().time() and not already_issued
+        group_not_empty = self.team.users.exists()
+        questions_not_empty = self.question_set.filter(active=True).exists()
+        return all([self.occurs_today,
+                    group_not_empty,
+                    questions_not_empty,
+                    self.survey_send_time <= now().time(),
+                    not already_issued])
 
     def can_issue_summary(self):
         return self.dailyreport_set.filter(date=date.today()).exists() and all([

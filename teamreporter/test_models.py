@@ -1,24 +1,40 @@
-from unittest.mock import MagicMock
 from django.test import TestCase
-from .models import Report, User, Team
-from datetime import time, datetime, timedelta
+from datetime import time, datetime
+
+from .models import Report, User, Team, Membership, Question
 import recurrence
+
+
+class TestNegativeReport(TestCase):
+    def setUp(self):
+        all_days_but_today = list(range(7))
+        all_days_but_today.remove(datetime.today().weekday())
+        rule_not = recurrence.Rule(recurrence.WEEKLY, byday=all_days_but_today)
+        rec_not = recurrence.Recurrence(rrules=[rule_not])
+        self.admin = User.objects.create(email="celery@admin.com", username="celery_admin")
+        self.team = Team.objects.create(name="celery_team_test", admin=self.admin)
+        self.report_not_today = Report.objects.create(team=self.team, recurrences=rec_not, survey_send_time=time.min)
+        self.report = Report.objects.create(team=self.team, survey_send_time=time.min,
+                                            recurrences=recurrence.Recurrence(rrules=[recurrence.Rule(recurrence.WEEKLY,
+                                                                                                      byday=range(7))]))
+
+    def test_not_occurs_today(self):
+        self.assertFalse(self.report_not_today.occurs_today)
+
+    def test_report_without_questions(self):
+        self.assertTrue(self.report.occurs_today)
+        self.assertFalse(self.report.can_issue_daily())
 
 
 class TestReport(TestCase):
     def setUp(self):
-        curr_day = datetime.today().weekday()
-        all_days = list(range(7))
-        all_days_but_today = list(range(7))
-        all_days_but_today.remove(curr_day)
-        rule = recurrence.Rule(recurrence.WEEKLY, byday=all_days)
-        rule_not = recurrence.Rule(recurrence.WEEKLY, byday=all_days_but_today)
+        rule = recurrence.Rule(recurrence.WEEKLY, byday=range(7))
         rec = recurrence.Recurrence(rrules=[rule])
-        rec_not = recurrence.Recurrence(rrules=[rule_not])
         self.admin = User.objects.create(email="celery@admin.com", username="celery_admin")
         self.team = Team.objects.create(name="celery_team_test", admin=self.admin)
+        self.membership = Membership.objects.create(team=self.team, user=self.admin)
         self.report = Report.objects.create(team=self.team, recurrences=rec, survey_send_time=time.min)
-        self.report_not_today = Report.objects.create(team=self.team, recurrences=rec_not, survey_send_time=time.min)
+        self.question = Question.objects.create(report=self.report, text='test')
 
     def test_occurs_today(self):
         """
@@ -27,7 +43,6 @@ class TestReport(TestCase):
         """
 
         self.assertTrue(self.report.occurs_today)
-        self.assertFalse(self.report_not_today.occurs_today)
 
     def test_can_issue_daily(self):
         """
@@ -40,7 +55,8 @@ class TestReport(TestCase):
         self.assertFalse(self.report.can_issue_daily())  # if hour is later than current time, don't issue
         self.report.survey_send_time = time.min
         self.report.get_daily()  # create daily report
-        self.assertFalse(self.report.can_issue_daily())  # assumed after daily report is created the daily report has already been sent
+        self.assertFalse(self.report.can_issue_daily(),
+                         "Assumed after daily report is created the daily report has already been sent")
 
     def test_get_daily(self):
         """
