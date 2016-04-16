@@ -8,7 +8,7 @@
 		</thead>
 		<tbody>
 		<tr ng-repeat="team in teams">
-			<td><a ng-click="update(team)">{{team.name}}</a></td>
+			<td><a ng-click="update(team)" style="cursor:pointer">{{team.name}}</a></td>
 			<td><a ui-sref="user({team_id: team.id})">View</a> </td>
 			<td><a ui-sref="report({team_id: team.id})">View</a> </td>
 			<td><button ng-click="teamService.delete(team.id)" class = "btn btn-sm btn-danger">Delete</button></td>

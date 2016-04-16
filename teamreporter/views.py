@@ -103,7 +103,6 @@ class TeamView(View):
         check_scope(request, team)
 
         report = team.report_set.first()
-        updates = {}
         if 'send_time' in team_info:
             report.survey_send_time = parser.parse(team_info['send_time']).replace(second=0, microsecond=0)
         if 'summary_time' in team_info:
@@ -207,7 +206,6 @@ class ReportView(View):
 
         question_string = report_info['question']
         question = Question.objects.create(text=question_string, report=team.report_set.first())
-        print(question)
         return JsonResponse({'question': model_to_dict(question, fields=('text', 'id'))})
 
     def delete(self, request, *args, **kwargs):
