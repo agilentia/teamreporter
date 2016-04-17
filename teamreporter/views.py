@@ -15,6 +15,7 @@ from django.utils.translation import ugettext as _
 from cerberus import Validator
 from dateutil import parser
 
+from .enums import DAYS
 from .forms import SurveyForm
 from .models import Team, User, Question, Role, Membership, Report, Survey, Answer, DailyReport
 from .validators import team_schema, user_schema, question_schema
@@ -27,11 +28,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-DAYS = ['MO', 'TU', 'WE', 'TH', 'FR']
-
 
 def check_scope(request, team):
-    if team.admin.email != request.user.email:
+    if team.admin != request.user:
         raise Http404("Team doesn't exist")
 
 
@@ -188,21 +187,35 @@ class UserView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class ReportView(View):
+class QuestionView(View):
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
         report = team.report_set.first()
-        questions = report.question_set.filter(active=True)
+        questions = report.question_set.active()
 
         return JsonResponse({'questions': [model_to_dict(q, fields=['id', 'text']) for q in questions]})
+
+    def put(self, request, *args, **kwargs):
+        question = get_object_or_404(Question, pk=self.kwargs['question_id'], report__team=self.kwargs['team_id'])
+        team = question.report.team
+        check_scope(request, team)
+        info = json.loads(request.body.decode('utf-8'))
+
+        validator = Validator(question_schema)
+        if not validator.validate(info):
+            return JsonResponse({'error': validator.errors})
+
+        question.text = info['question']
+        question.save()
+        return JsonResponse({'question': model_to_dict(question, fields=('text', 'id'))})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
-        report_info = json.loads(request.body.decode("utf-8"))
+        report_info = json.loads(request.body.decode('utf-8'))
 
         validator = Validator(question_schema)
         if not validator.validate(report_info):
@@ -239,7 +252,7 @@ class SurveyView(FormView):
         Returns the keyword arguments for instantiating the form. Include ``questions`` for initiating survey.
         """
         kwargs = super(SurveyView, self).get_form_kwargs()
-        kwargs['questions'] = self.survey.report.question_set.filter(active=True)
+        kwargs['questions'] = self.survey.report.question_set.active()
         return kwargs
 
     def form_valid(self, form):
@@ -302,5 +315,5 @@ class SurveyDebugPreview(TemplateView):
         context = super(SurveyDebugPreview, self).get_context_data(**kwargs)
         survey = Survey.objects.get(pk=kwargs['survey'])
         context['survey'] = survey
-        context['questions'] = survey.report.question_set.filter(active=True)
+        context['questions'] = survey.report.question_set.active()
         return context
