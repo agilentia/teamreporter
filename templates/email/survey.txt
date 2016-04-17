@@ -4,6 +4,4 @@ Hello {{ user.first_name }}! Please find a moment to answer these questions.
     {{ question.text }}
 {% endfor %}
 
-{% comment %}
-    TODO: include link to answer the questions
-{% endcomment %}
+{{SITE_URL}}{% url 'survey_view' survey.pk %}

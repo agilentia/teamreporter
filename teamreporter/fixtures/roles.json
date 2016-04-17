@@ -10,7 +10,7 @@
   "model": "teamreporter.role",
   "pk": 2,
   "fields": {
-    "name": "contributer"
+    "name": "contributor"
   }
 }
 ]

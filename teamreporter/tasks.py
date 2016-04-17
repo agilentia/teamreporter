@@ -1,5 +1,3 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template import Context
@@ -9,6 +7,8 @@ from django.utils.timezone import now
 from teamreporter.models import Survey, Report, DailyReport
 from teamreporter.utils import send_mass_html_mail
 from teamreporterapp.celery import app
+
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ def send_survey(survey_pk):
     html_content = html.render(context)
 
     survey.user.email_user(subject, text_content, settings.DEFAULT_FROM_EMAIL, html_message=html_content)
+
 
 @app.task
 def generate_survey(user_pk, daily_pk):
@@ -50,7 +51,7 @@ def send_summary(report_pk):
     report = Report.objects.get(pk=report_pk)
     daily = report.get_daily()
     messages = []
-    for user in report.team.users.all():
+    for user in (u for u in report.team.users.all() if report.has_stakeholder(u)):
         context = Context({'user': user,
                            'surveys': daily.survey_set.all(),
                            'user_sent_report': daily.survey_set.filter(user=user, completed__isnull=False).exists()})
@@ -70,9 +71,8 @@ def send_summary(report_pk):
 
 @app.task
 def issue_summaries():
-    for report in Report.objects.all():
-        if report.can_issue_summary():
-            send_summary.delay(report.pk)
+    for report in (r for r in Report.objects.all() if r.can_issue_summary()):
+        send_summary.delay(report.pk)
 
 
 @app.task
@@ -81,10 +81,9 @@ def issue_surveys():
     This task is used as PeriodicTask to check which team's report should be generated and sent to all users.
     """
     survey_count = 0
-    for report in Report.objects.all():
-        if report.can_issue_daily():
-            daily = report.get_daily()
-            for user in report.team.users.all():  # TODO: take into account user roles
-                if (generate_survey.delay(user.pk, daily.pk)):
-                    survey_count += 1
+    for report in (r for r in Report.objects.all() if r.can_issue_daily()):
+        daily = report.get_daily()
+        for user in (u for u in report.team.users.all() if report.has_contributor(u)):
+            if generate_survey.delay(user.pk, daily.pk):
+                survey_count += 1
     return survey_count

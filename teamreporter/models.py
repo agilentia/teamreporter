@@ -46,6 +46,12 @@ class Report(models.Model):
         return 'Report ({0}) from {1} flow {2}=>{3}'.format(self.pk, self.team, self.survey_send_time,
                                                             self.summary_send_time)
 
+    def has_contributor(self, user):
+        return self.team.users.filter(membership__roles__name='contributor', membership__user=user)
+
+    def has_stakeholder(self, user):
+        return self.team.users.filter(membership__roles__name='stakeholder', membership__user=user)
+
     def can_issue_daily(self):
         """
         ``Report`` can issue ``DailyReport`` if and only if
