@@ -1,8 +1,8 @@
 Django==1.9.5
 django-extensions==1.6.1
-django-registration
-django-registration-defaults
-django-compressor
+django-registration==2.0.4
+django-registration-defaults==0.4.4
+django-compressor==2.0
 dj-database-url==0.4.0
 
 # handling events and scheduling
