@@ -1,4 +1,4 @@
-# Sherpany Boomerang
+# Boomerang
 
 [Boomerang](https://github.com/agilentia/teamreporter) is an application that helps you to get status updates from your team in an easy and automated way.
 
