@@ -109,11 +109,18 @@ class DailyReport(models.Model):
         unique_together = ('report', 'date')
 
 
+class QuestionManager(models.Manager):
+    def active(self):
+        return self.get_queryset().filter(active=True)
+
+
 class Question(models.Model):
     report = models.ForeignKey(Report)
     text = models.TextField()
     created = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
+
+    objects = QuestionManager()
 
     def __str__(self):
         return 'Question {0} from Report {1}'.format(self.pk, self.report.pk)
