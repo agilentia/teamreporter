@@ -79,10 +79,8 @@ class TeamView(View):
 
         try:
             team = Team.objects.create(admin=user, name=team_info['name'])
-        except ValidationError:
-            return JsonResponse({'error': {"name": _("team with this name already exists")}},
-                                status=400)  # should also check error code to ensure its violating the unique together constraint (likely is)
-
+        except IntegrityError:
+            return JsonResponse({'error': {"name": _("team with this name already exists")}})
         Report.objects.create(team=team, recurrences=rec, survey_send_time=survey_send_time,
                               summary_send_time=summary_send_time)
         team_dict = model_to_dict(team, exclude=['users'])
