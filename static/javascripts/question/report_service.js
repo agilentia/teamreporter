@@ -20,7 +20,7 @@ app.factory("reportService", ["Report", function (Report) {
         update: function (question_id, question_info) {
             return Report.update(({team_id: self.team_id, id: question_id}), question_info, function (data) {
                 for (var i = 0; i < questions.length; i++) {
-                    if (questions[i].id === data.question.id) {
+                    if (questions[i].id === question_id) {
                         questions[i] = data.question;
                     }
                 }

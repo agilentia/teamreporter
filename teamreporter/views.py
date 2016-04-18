@@ -200,9 +200,10 @@ class QuestionView(View):
         if not validator.validate(info):
             return JsonResponse({'error': validator.errors})
 
-        question.text = info['question']
+        new_question = Question.objects.create(text=info['question'], report=question.report)
+        question.active = False
         question.save()
-        return JsonResponse({'question': model_to_dict(question, fields=('text', 'id'))})
+        return JsonResponse({'question': model_to_dict(new_question, fields=('text', 'id'))})
 
     def post(self, request, *args, **kwargs):
         team_id = int(self.kwargs['team_id'])
