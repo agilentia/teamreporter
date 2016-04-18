@@ -18,7 +18,7 @@ def send_survey(survey_pk):
     survey = Survey.objects.get(pk=survey_pk)
 
     context = Context({'survey': survey,
-                       'questions': survey.report.question_set.filter(active=True)})  # TODO: use manager instead
+                       'questions': survey.report.question_set.active()})
     context['SITE_URL'] = settings.SITE_URL
     subject = render_to_string('email/survey_subject.txt', context)
 

@@ -6,7 +6,7 @@
 		</thead>
 		<tbody>
 		<tr ng-repeat="question in questions">
-			<td>{{question.text}}</td>
+			<td><a ng-click="update(question)" style="cursor:pointer">{{question.text}}</a></td>
 			<td><button ng-click="reportService.delete(question.id)" class = "btn btn-sm btn-danger">Delete</button></td>
 		</tr>
 		</tbody>

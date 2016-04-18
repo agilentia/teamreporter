@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from teamreporter.views import (
     IndexView, UserView, TeamView, RoleView, SummaryDebugPreview,
-    SurveyDebugPreview, ReportView, SurveyView, ThankYouView,
+    SurveyDebugPreview, QuestionView, SurveyView, ThankYouView,
     GenericErrorPage,
 )
 
@@ -33,9 +33,9 @@ urlpatterns = [
     url(r'^accounts/', include('registration.backends.hmac.urls')),
     url(r'^team/$', TeamView.as_view(), name="team_view"),
     url(r'^team/(?P<team_id>\d+)/?$', TeamView.as_view(), name="team_detail_view"),
-    url(r'^team/(?P<team_id>\d+)/report/questions/?$', ReportView.as_view(), name="report_view"),
+    url(r'^team/(?P<team_id>\d+)/report/questions/?$', QuestionView.as_view(), name="report_view"),
     # treating this as a questions endpoint for now
-    url(r'^team/(?P<team_id>\d+)/report/questions/(?P<question_id>\d+)/?$', ReportView.as_view(),
+    url(r'^team/(?P<team_id>\d+)/report/questions/(?P<question_id>\d+)/?$', QuestionView.as_view(),
         name="questions_view"),
     # a bit hacky, but can make separate resource later for questions
     url(r'^team/(?P<team_id>\d+)/users/?$', UserView.as_view(), name="user_view"),
