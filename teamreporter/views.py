@@ -158,18 +158,16 @@ class UserView(View):
             return JsonResponse({'error': validator.errors})
 
         role_ids = [role['id'] for role in user_info['roles']]
-        user, created = User.objects.get_or_create(email=user_info['email'])
-        if created:
-            user.first_name = user_info['first_name']
-            user.last_name = user_info['last_name']
-            user.save()
+        defaults = {k: user_info[k] for k in ['first_name', 'last_name', 'email']}
+        defaults['username'] = user_info['email']
+        user, created = User.objects.get_or_create(email=user_info['email'], defaults=defaults)
 
         try:
             membership = Membership.objects.create(team=team, user=user)
             membership.roles.add(*role_ids)
             membership.save()
         except IntegrityError:
-            JsonResponse({'error': [{'Duplicate': "User already a part of team"}]}, status=400)
+            return JsonResponse({'error': {"name": _("user already part of the team")}})
         user_dict = model_to_dict(user, fields=['email', 'first_name', 'last_name', 'id'])
         user_dict['roles'] = user_info['roles']
         return JsonResponse({'user': user_dict})
