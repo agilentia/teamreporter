@@ -48,14 +48,11 @@ class IndexView(TemplateView):
 class TeamView(View):
     def report_dict(self, team):
         report = team.report_set.first()
-        if report:
-            days = [DAYS.index(day_string) for day_string in report.recurrences.rrules[0].byday]
-            report_dict = model_to_dict(report, exclude=['recurrences'])
-            report_dict['days_of_week'] = days
+        days = [DAYS.index(day_string) for day_string in report.recurrences.rrules[0].byday]
+        report_dict = model_to_dict(report, exclude=['recurrences'])
+        report_dict['days_of_week'] = days
 
-            return report_dict
-        else:
-            return {}
+        return report_dict
 
     def get(self, request, *args, **kwargs):
         user = request.user
