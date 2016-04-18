@@ -27,7 +27,8 @@ class TestTasks(TestCase):
             self.membership.roles.add(r)
 
         self.team.membership_set.add(self.membership)
-        self.report = Report.objects.create(team=self.team, recurrences=rec, survey_send_time=time.min)
+        self.report = Report.objects.create(team=self.team, recurrences=rec, summary_send_time=time.max,
+                                            survey_send_time=time.max)
 
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
@@ -54,7 +55,9 @@ class TestTasks(TestCase):
 
         Returns the number of users a survey was sent to.  TODO: issue_survey can probably return something with more info in the future
         """
-        result = issue_surveys.apply().get()
+
+        with mock.patch.object(Report, 'can_issue_daily', return_value=True):
+            result = issue_surveys.apply().get()
         self.assertEqual(result, 1, 'task should generate at least one survey')
         self.assertEquals(len(mail.outbox), 1, 'there should be nice email sent to user')
 
@@ -84,12 +87,14 @@ class TestTasks(TestCase):
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
     def test_issue_summaries(self):
-        result = issue_surveys.apply().get()
+        with mock.patch.object(Report, 'can_issue_daily', return_value=True):
+            result = issue_surveys.apply().get()
         self.assertEqual(result, 1, 'task should generate at least one survey')
         survey = Survey.objects.get()
         survey.completed = now()
 
-        issue_summaries.apply()
+        with mock.patch.object(Report, 'can_issue_summary', return_value=True):
+            issue_summaries.apply()
         self.assertEquals(len(mail.outbox), 2, 'there should be two emails sent to user')
 
         self.assertIsNotNone(Report.objects.get().dailyreport_set.get().summary_submitted)
