@@ -23,6 +23,7 @@ from .decorators import survey_completed
 
 import recurrence
 import json
+import hashlib
 
 import logging
 
@@ -155,7 +156,8 @@ class UserView(View):
 
         role_ids = [role['id'] for role in user_info['roles']]
         defaults = {k: user_info[k] for k in ['first_name', 'last_name', 'email']}
-        defaults['username'] = user_info['email']
+        username_hash = hashlib.md5()
+        defaults['username'] = hashlib.md5(user_info['email'].encode('utf-8')).hexdigest()
         user, created = User.objects.get_or_create(email=user_info['email'], defaults=defaults)
 
         try:
