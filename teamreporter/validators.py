@@ -23,7 +23,7 @@ user_schema = {
     "first_name": {"type": "string", "minlength": 1, 'maxlength': 30, 'required': True},
     "last_name": {"type": "string", "minlength": 1, 'maxlength': 30, 'required': True},
     'email': {'type': 'string', 'regex': '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', 'required': True},
-    'roles': {'type': 'list', 'required': True, 'schema': {'type':'dict', 
+    'roles': {'type': 'list', 'minlength': 1, 'required': True, 'schema': {'type':'dict', 
                     'schema': {'id': {'type': ['integer', 'string'], 'required': True}, 'name': {'type': 'string', 'required': True} } } }
 }
 

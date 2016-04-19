@@ -156,7 +156,6 @@ class UserView(View):
 
         role_ids = [role['id'] for role in user_info['roles']]
         defaults = {k: user_info[k] for k in ['first_name', 'last_name', 'email']}
-        username_hash = hashlib.md5()
         defaults['username'] = hashlib.md5(user_info['email'].encode('utf-8')).hexdigest()
         user, created = User.objects.get_or_create(email=user_info['email'], defaults=defaults)
 
