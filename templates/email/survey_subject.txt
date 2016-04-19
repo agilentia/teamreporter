@@ -1,1 +1,1 @@
-{% load i18n %}{% trans "Boomerang calling in for a minute of your time!" %}
+{% load i18n %}{% blocktrans with name=survey.report.team.name date=survey.daily.date%}Boomerang call from team "{{ name }}" on {{ date }}{% endblocktrans %}

@@ -63,7 +63,7 @@ class TestTasks(TestCase):
 
         message = mail.outbox[0]
         html_body = message.alternatives[0][0]
-        self.assertIn('Boomerang calling in', message.subject, 'title contains positive message')
+        self.assertIn('Boomerang call from team', message.subject, 'title contains positive message')
         self.assertIn(str(Survey.objects.get().pk), message.body, 'body  contains link with survey pk')
         self.assertIn(str(Survey.objects.get().pk), html_body, 'also html body')
 
