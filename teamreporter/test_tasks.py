@@ -33,7 +33,6 @@ class TestTasks(TestCase):
         for i in range(10):
             Question.objects.create(text='test-question-%s' % (i,), report=self.report)
 
-
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
     def test_generate_survey(self):
@@ -73,7 +72,6 @@ class TestTasks(TestCase):
 
         for question in self.report.question_set.active().values_list('text', flat=True):
             self.assertIn(question, html_body, 'survey contains questions')
-
 
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
