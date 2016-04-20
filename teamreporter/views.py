@@ -145,6 +145,13 @@ class TeamView(View):
         return JsonResponse({'team': team_dict})
 
     def delete(self, request, *args, **kwargs):
+        """
+        ``delete`` responds to HTTP DELETE requests for the Team resource
+          - Deletes an existing team
+        :return: Returns deleted Team object
+        :rtype: JSON
+          - {team: team_object}
+        """
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
@@ -155,7 +162,17 @@ class TeamView(View):
 
 @method_decorator(login_required, name='dispatch')
 class UserView(View):
+    """
+    ``UserView`` sets up API endpoints for users on a team
+    """
     def get(self, request, *args, **kwargs):
+        """
+        ``get`` responds to HTTP GET requests for the User resource
+          - Gets users for a team
+        :return: list of user objects
+        :rtype: JSON
+          - {user: [user_object1, user_object, ...]}
+        """
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
@@ -169,6 +186,13 @@ class UserView(View):
         return JsonResponse({'users': users})
 
     def post(self, request, *args, **kwargs):
+        """
+        ``post`` responds to HTTP POST requests for the User resource
+          - Saves a new user
+        :return: Returns saved User object
+        :rtype: JSON
+          - {user: user_object}
+        """
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
@@ -194,6 +218,13 @@ class UserView(View):
         return JsonResponse({'user': user_dict})
 
     def delete(self, request, *args, **kwargs):
+        """
+        ``delete`` responds to HTTP DELETE requests for the User resource
+          - Deletes user's team membership (not user itself)
+        :return: Returns User object
+        :rtype: JSON
+          - {user: user_object}
+        """
         user_id = int(self.kwargs['user_id'])
         team_id = int(self.kwargs['team_id'])
         user = get_object_or_404(User, pk=user_id)
@@ -206,6 +237,9 @@ class UserView(View):
 
 @method_decorator(login_required, name='dispatch')
 class QuestionView(View):
+    """
+    ``QuestionView`` sets up API endpoints for report questions for a team
+    """
     def get(self, request, *args, **kwargs):
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
@@ -216,6 +250,15 @@ class QuestionView(View):
         return JsonResponse({'questions': [model_to_dict(q, fields=['id', 'text']) for q in questions]})
 
     def put(self, request, *args, **kwargs):
+        """
+        ``put`` responds to HTTP PUT requests for the Question resource
+          - Deletes question
+          - Creates a new question
+          - We want to keep questions immutable on the backend for historical purposes
+        :return: Returns new Question object
+        :rtype: JSON
+          - {team: team_object}
+        """
         question = get_object_or_404(Question, pk=self.kwargs['question_id'], report__team=self.kwargs['team_id'])
         team = question.report.team
         check_scope(request, team)
@@ -231,6 +274,13 @@ class QuestionView(View):
         return JsonResponse({'question': model_to_dict(new_question, fields=('text', 'id'))})
 
     def post(self, request, *args, **kwargs):
+        """
+        ``post`` responds to HTTP POST requests for the Question resource
+          - Saves a new question
+        :return: Returns saved Question object
+        :rtype: JSON
+          - {question: question_object}
+        """
         team_id = int(self.kwargs['team_id'])
         team = get_object_or_404(Team, pk=team_id)
         check_scope(request, team)
@@ -245,6 +295,13 @@ class QuestionView(View):
         return JsonResponse({'question': model_to_dict(question, fields=('text', 'id'))})
 
     def delete(self, request, *args, **kwargs):
+        """
+        ``delete`` responds to HTTP DELETE requests for the Question resource
+          - Sets the question to inactive (want to keep it for historical purposes)
+        :return: Returns deleted/deativated Question object
+        :rtype: JSON
+          - {question: question_object}
+        """
         question_id = int(self.kwargs['question_id'])
         question = get_object_or_404(Question, pk=question_id)
         team = question.report.team
