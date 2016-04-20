@@ -1,4 +1,10 @@
 from django.core.mail import get_connection, EmailMultiAlternatives
+from django.utils import timezone
+
+
+def local_now():
+    """ Returns localized time """
+    return timezone.localtime(timezone.now())
 
 
 def send_mass_html_mail(datatuple, fail_silently=False, user=None, password=None,

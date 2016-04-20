@@ -1,8 +1,8 @@
 from datetime import date, datetime, time
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.timezone import now
 
+from teamreporter.utils import local_now as now
 from recurrence.fields import RecurrenceField
 import uuid
 
