@@ -46,6 +46,9 @@ class IndexView(TemplateView):
 
 @method_decorator(login_required, name='dispatch')
 class TeamView(View):
+    """
+    ``TeamView`` sets up API endpoints for Teams
+    """
     def report_dict(self, team):
         report = team.report_set.first()
         days = [DAYS.index(day_string) for day_string in report.recurrences.rrules[0].byday]
@@ -55,6 +58,13 @@ class TeamView(View):
         return report_dict
 
     def get(self, request, *args, **kwargs):
+        """
+        ``get`` responds to HTTP GET requests for the Team resource
+
+        :return: Returns JSON with list of teams for logged in User
+        :rtype: JSON
+          - {teams: [team1, team2,...]}
+        """
         user = request.user
         teams = []
         for team in Team.objects.filter(admin=user):
@@ -64,6 +74,13 @@ class TeamView(View):
         return JsonResponse({'teams': teams})
 
     def post(self, request, *args, **kwargs):
+        """
+        ``post`` responds to HTTP POST requests for the Team resource
+          - Saves a new team
+        :return: Returns saved Team object
+        :rtype: JSON
+          - {team: team_object}
+        """
         user = request.user
         team_info = json.loads(request.body.decode("utf-8"))
         validator = Validator(team_schema)
@@ -85,6 +102,13 @@ class TeamView(View):
         return JsonResponse({'team': team_dict})
 
     def put(self, request, *args, **kwargs):
+        """
+        ``put`` responds to HTTP POST requests for the Team resource
+          - Updates an existing team
+        :return: Returns saved Team object
+        :rtype: JSON
+          - {team: team_object}
+        """
         team_info = json.loads(request.body.decode('utf-8'))
 
         validator = Validator(team_schema)
