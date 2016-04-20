@@ -295,10 +295,13 @@ class SummaryDebugPreview(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
         daily = get_object_or_404(DailyReport, pk=kwargs['report'])
+
+        questions = daily.report.question_set.active()
+
         context.update({'user': self.request.user,
-                        'surveys': daily.survey_set.all(),
-                        'user_sent_report': daily.survey_set.filter(user=self.request.user,
-                                                                    completed__isnull=False).exists()})
+                        'daily': daily,
+                        'questions': questions,
+                        'surveys': daily.survey_set.all()})
         return context
 
 

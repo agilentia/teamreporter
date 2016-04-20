@@ -7,17 +7,16 @@
 {% with user.first_name as name %}
 <h2>{% blocktrans %}Hello <b>{{ name }}</b>!{% endblocktrans %}</h2>
 {% endwith %}
-{% if user_sent_report %}
-<p>{% blocktrans %}Again, thank you for participating in this survey!{% endblocktrans %}</h2>
-{% else %}
-<p>{% blocktrans %}Unfortunately we didn't get your response. Hope we'll meet next time. {% endblocktrans %}</p>
-{% endif %}
 <p>{% blocktrans %}Below you'll find summary report from the rest of your team:{% endblocktrans %}</p>
 <ul>
     {% for survey in surveys %}
         <h3>{{survey.user.get_full_name}} - {{survey.user.email}}</h3>
         {% for answer in survey.answer_set.all %}
             <p><b>{{answer.question.text}}</b> - {{answer.text}}</p>
+        {% empty %}
+            {% for question in questions %}
+            <p><b>{{question.text}}</b> - {% trans "no answer" %}</p>
+            {% endfor %}
         {% endfor %}
     {% endfor %}
 </ul>
