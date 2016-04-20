@@ -25,6 +25,7 @@ import recurrence
 import json
 import hashlib
 
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ class TeamView(View):
         survey_send_time = parser.parse(team_info['send_time']).replace(second=0, microsecond=0)
         summary_send_time = parser.parse(team_info['summary_time']).replace(second=0, microsecond=0)
         rule = recurrence.Rule(recurrence.WEEKLY, byday=team_info['days_of_week'])
-        rec = recurrence.Recurrence(rrules=[rule])
+        rec = recurrence.Recurrence(rrules=[rule], exdates=[datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)])
 
         try:
             team = Team.objects.create(admin=user, name=team_info['name'])
