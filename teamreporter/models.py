@@ -90,7 +90,7 @@ class Report(models.Model):
         """
         Return ``DailyReport`` tailored for current day. Skip created part entirely.
         """
-        return DailyReport.objects.get_or_create(report=self)[0]
+        return DailyReport.objects.get_or_create(report=self, date=date.today())[0]
 
     @property
     def occurs_today(self):
