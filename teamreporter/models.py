@@ -1,8 +1,8 @@
 from datetime import date, datetime, time
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.timezone import now
 
+from teamreporter.utils import local_now as now
 from recurrence.fields import RecurrenceField
 import uuid
 
@@ -47,10 +47,18 @@ class Report(models.Model):
                                                             self.summary_send_time)
 
     def has_contributor(self, user):
-        return self.team.users.filter(membership__roles__name='contributor', membership__user=user)
+        return self.team.users.filter(membership__roles__name='contributor', membership__user=user).exists()
 
     def has_stakeholder(self, user):
-        return self.team.users.filter(membership__roles__name='stakeholder', membership__user=user)
+        return self.team.users.filter(membership__roles__name='stakeholder', membership__user=user).exists()
+
+    @property
+    def contributors(self):
+        return self.team.users.filter(membership__roles__name='contributor')
+
+    @property
+    def stakeholders(self):
+        return self.team.users.filter(membership__roles__name='stakeholder')
 
     def can_issue_daily(self):
         """

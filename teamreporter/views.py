@@ -5,7 +5,7 @@ from django.views.generic import FormView
 from django.views.generic.base import TemplateView, View
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse, Http404
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms.models import model_to_dict
 from django.contrib.auth.decorators import login_required
@@ -295,10 +295,13 @@ class SummaryDebugPreview(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
         daily = get_object_or_404(DailyReport, pk=kwargs['report'])
+
+        questions = daily.report.question_set.active()
+
         context.update({'user': self.request.user,
-                        'surveys': daily.survey_set.all(),
-                        'user_sent_report': daily.survey_set.filter(user=self.request.user,
-                                                                    completed__isnull=False).exists()})
+                        'daily': daily,
+                        'questions': questions,
+                        'surveys': daily.survey_set.all()})
         return context
 
 
