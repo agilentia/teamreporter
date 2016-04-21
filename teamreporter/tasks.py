@@ -15,6 +15,13 @@ logger = logging.getLogger(__name__)
 
 @app.task
 def send_survey(survey_pk):
+    """
+    Emails a team's questions to the survey's (id=survey_pk) its corresponding contributor
+
+    :param survey_pk: Survey's primary key value
+    :return: Nothing
+    :rtype: None
+    """
     survey = Survey.objects.get(pk=survey_pk)
 
     context = Context({'survey': survey,
@@ -32,6 +39,14 @@ def send_survey(survey_pk):
 
 @app.task
 def generate_survey(user_pk, daily_pk):
+    """
+    Creates a survey for a contributor on a team using the team's report's current questions
+
+    :param user_pk: User's primary key value
+    :param daily_pk: Daily report's primary key value
+    :return: True if survey created, False/None otherwise
+    :rtype: bool
+    """
     user = User.objects.get(pk=user_pk)
     daily = DailyReport.objects.get(pk=daily_pk)
     if not daily.report.team.users.filter(pk=user_pk).exists():
@@ -48,6 +63,13 @@ def generate_survey(user_pk, daily_pk):
 
 @app.task
 def send_summary(report_pk):
+    """
+    Sends all surveys filled out by contributors for the id=report_pk's daily report to the stakeholders
+
+    :param report_pk: Report's primary key value
+    :return: Nothing
+    :rtype: None
+    """
     report = Report.objects.get(pk=report_pk)
     daily = report.get_daily()
     messages = []
@@ -74,6 +96,12 @@ def send_summary(report_pk):
 
 @app.task
 def issue_summaries():
+    """
+    Sends out all daily report summaries to its stakeholders that should be sent out at the current time on the current day
+
+    :return: Nothing
+    :rtype: None
+    """
     for report in (r for r in Report.objects.all() if r.can_issue_summary()):
         send_summary.delay(report.pk)
 
@@ -81,7 +109,10 @@ def issue_summaries():
 @app.task
 def issue_surveys():
     """
-    This task is used as PeriodicTask to check which team's report should be generated and sent to all users.
+    Sends out all daily surveys to its contributors that should be sent out at the current time on the current day
+
+    :return: Total number of surveys sent out
+    :rtype: int
     """
     survey_count = 0
     for report in (r for r in Report.objects.all() if r.can_issue_daily()):

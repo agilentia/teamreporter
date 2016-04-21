@@ -13,6 +13,7 @@ Contents:
 
    modules/models.rst
    modules/views.rst
+   modules/tasks.rst
 
 Indices and tables
 ==================
