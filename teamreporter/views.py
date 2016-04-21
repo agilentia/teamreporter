@@ -25,6 +25,7 @@ import recurrence
 import json
 import hashlib
 
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -89,7 +90,11 @@ class TeamView(View):
         survey_send_time = parser.parse(team_info['send_time']).replace(second=0, microsecond=0)
         summary_send_time = parser.parse(team_info['summary_time']).replace(second=0, microsecond=0)
         rule = recurrence.Rule(recurrence.WEEKLY, byday=team_info['days_of_week'])
-        rec = recurrence.Recurrence(rrules=[rule])
+        now = datetime.datetime.now()
+        exdates = []
+        if survey_send_time < now:
+            exdates.append(now.replace(hour=0, minute=0, second=0, microsecond=0))
+        rec = recurrence.Recurrence(rrules=[rule], exdates=exdates)
 
         try:
             team = Team.objects.create(admin=user, name=team_info['name'])
@@ -376,10 +381,13 @@ class SummaryDebugPreview(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SummaryDebugPreview, self).get_context_data(**kwargs)
         daily = get_object_or_404(DailyReport, pk=kwargs['report'])
+
+        questions = daily.report.question_set.active()
+
         context.update({'user': self.request.user,
-                        'surveys': daily.survey_set.all(),
-                        'user_sent_report': daily.survey_set.filter(user=self.request.user,
-                                                                    completed__isnull=False).exists()})
+                        'daily': daily,
+                        'questions': questions,
+                        'surveys': daily.survey_set.all()})
         return context
 
 

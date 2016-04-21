@@ -1,1 +1,1 @@
-{% load i18n %}{% trans "Boomerang summary report" %}
+{% load i18n %}{% blocktrans with name=daily.report.team.name date=daily.date%}Boomerang summary report for team "{{ name }}" on {{ date }}{% endblocktrans %}

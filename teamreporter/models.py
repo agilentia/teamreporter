@@ -47,10 +47,18 @@ class Report(models.Model):
                                                             self.summary_send_time)
 
     def has_contributor(self, user):
-        return self.team.users.filter(membership__roles__name='contributor', membership__user=user)
+        return self.team.users.filter(membership__roles__name='contributor', membership__user=user).exists()
 
     def has_stakeholder(self, user):
-        return self.team.users.filter(membership__roles__name='stakeholder', membership__user=user)
+        return self.team.users.filter(membership__roles__name='stakeholder', membership__user=user).exists()
+
+    @property
+    def contributors(self):
+        return self.team.users.filter(membership__roles__name='contributor')
+
+    @property
+    def stakeholders(self):
+        return self.team.users.filter(membership__roles__name='stakeholder')
 
     def can_issue_daily(self):
         """
@@ -82,7 +90,7 @@ class Report(models.Model):
         """
         Return ``DailyReport`` tailored for current day. Skip created part entirely.
         """
-        return DailyReport.objects.get_or_create(report=self)[0]
+        return DailyReport.objects.get_or_create(report=self, date=date.today())[0]
 
     @property
     def occurs_today(self):

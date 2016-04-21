@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from .tasks import generate_survey, issue_surveys, issue_summaries
-from .models import Report, Team, Membership, User, Role, Survey
+from .models import Report, Team, Membership, User, Role, Survey, Question
 
 from datetime import time
 from unittest import mock
@@ -29,6 +29,9 @@ class TestTasks(TestCase):
         self.team.membership_set.add(self.membership)
         self.report = Report.objects.create(team=self.team, recurrences=rec, summary_send_time=time.max,
                                             survey_send_time=time.max)
+
+        for i in range(10):
+            Question.objects.create(text='test-question-%s' % (i,), report=self.report)
 
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
@@ -67,6 +70,9 @@ class TestTasks(TestCase):
         self.assertIn(str(Survey.objects.get().pk), message.body, 'body  contains link with survey pk')
         self.assertIn(str(Survey.objects.get().pk), html_body, 'also html body')
 
+        for question in self.report.question_set.active().values_list('text', flat=True):
+            self.assertIn(question, html_body, 'survey contains questions')
+
     @override_settings(CELERY_ALWAYS_EAGER=True,
                        BROKER_BACKEND='memory')
     def test_issue_survey_not_contributor(self):
@@ -100,3 +106,9 @@ class TestTasks(TestCase):
         self.assertIsNotNone(Report.objects.get().dailyreport_set.get().summary_submitted)
         message = mail.outbox[1]
         self.assertIn('Boomerang summary report', message.subject, 'title contains positive message')
+
+        html_body = message.alternatives[0][0]
+        for question in self.report.question_set.active().values_list('text', flat=True):
+            self.assertIn(question, html_body, 'report contains questions')
+
+        self.assertIn('no answer', html_body, "and doesn't contain answers but contains this string at least once")

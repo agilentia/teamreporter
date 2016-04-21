@@ -51,10 +51,13 @@ def send_summary(report_pk):
     report = Report.objects.get(pk=report_pk)
     daily = report.get_daily()
     messages = []
-    for user in (u for u in report.team.users.all() if report.has_stakeholder(u)):
+    questions = daily.report.question_set.active()
+    surveys = daily.survey_set.all()
+    for user in report.stakeholders:
         context = Context({'user': user,
-                           'surveys': daily.survey_set.all(),
-                           'user_sent_report': daily.survey_set.filter(user=user, completed__isnull=False).exists()})
+                           'daily': daily,
+                           'surveys': surveys,
+                           'questions': questions})
         context['SITE_URL'] = settings.SITE_URL
         subject = render_to_string('email/summary_subject.txt', context)
 
@@ -83,7 +86,7 @@ def issue_surveys():
     survey_count = 0
     for report in (r for r in Report.objects.all() if r.can_issue_daily()):
         daily = report.get_daily()
-        for user in (u for u in report.team.users.all() if report.has_contributor(u)):
+        for user in report.contributors:
             if generate_survey.delay(user.pk, daily.pk):
                 survey_count += 1
     return survey_count
