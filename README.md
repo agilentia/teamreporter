@@ -57,4 +57,4 @@ Thanks to [Sherpany](http://www.sherpany.com/) for putting the team together.
 
 ## Are you using Boomerang?
 
-If you are using Boomerang for your group or organisation, we would love to know about it. Please add yourself to the [USERS](https://github.com/agilentia/teamreporter/blob/master/USERS.md) file.
+If you are using Boomerang, we would love to know about it. Please add yourself to the [USERS](https://github.com/agilentia/teamreporter/blob/master/USERS.md) file.
