@@ -1,6 +1,6 @@
 # Boomerang
 
-[Boomerang](https://github.com/agilentia/teamreporter) is an application that helps you to get status updates from your team in an easy and automated way.
+Boomerang is an application that helps you to get status updates from your team in an easy and automated way.
 
 Boomerang was inspired by [Teamreporter](http://www.teamreporterapp.com/), which ended its operations in 2016-April.
 
@@ -24,12 +24,8 @@ $ Go to http://localhost:5000
 ```
 
 ### TODO
-* Add ability to add questions through frontend (coming soon)
-* Add period options for Team reports
 * Start writing Angular unit/integration tests
 * Write more Django unit tests 
-* Start adding comments
-* Take roles into account for user / report management
 
 ### Improvements
 * Some angular code can be refactored into common packages.  In progress
@@ -53,3 +49,8 @@ Please use the [issue tracker](https://github.com/agilentia/teamreporter/issues)
 ## Thanks
 
 Thanks to [Sherpany](http://www.sherpany.com/) for putting the team together. 
+
+
+## Are you using Boomerang?
+
+If you are using Boomerang, we would love to know about it. Please add yourself to the [USERS](https://github.com/agilentia/teamreporter/blob/master/USERS.md) file.
