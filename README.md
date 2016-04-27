@@ -24,12 +24,8 @@ $ Go to http://localhost:5000
 ```
 
 ### TODO
-* Add ability to add questions through frontend (coming soon)
-* Add period options for Team reports
 * Start writing Angular unit/integration tests
 * Write more Django unit tests 
-* Start adding comments
-* Take roles into account for user / report management
 
 ### Improvements
 * Some angular code can be refactored into common packages.  In progress
